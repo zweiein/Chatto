@@ -48,6 +48,7 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
             UIControlStateWrapper(state: .selected): UIImage(named: "mic-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!,
             UIControlStateWrapper(state: .highlighted): UIImage(named: "mic-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!
         ]
+        print("Button Image Name: mic-icon")
         return TabInputButtonAppearance(images: images, size: nil)
     }
     
