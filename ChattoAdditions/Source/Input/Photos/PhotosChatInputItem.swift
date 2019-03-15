@@ -43,10 +43,15 @@ open class PhotosChatInputItem: ChatInputItemProtocol {
     }
 
     public static func createDefaultButtonAppearance() -> TabInputButtonAppearance {
+//        let images: [UIControlStateWrapper: UIImage] = [
+//            UIControlStateWrapper(state: .normal): UIImage(named: "camera-icon-unselected", in: Bundle(for: Class.self), compatibleWith: nil)!,
+//            UIControlStateWrapper(state: .selected): UIImage(named: "camera-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!,
+//            UIControlStateWrapper(state: .highlighted): UIImage(named: "camera-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!
+//        ]
         let images: [UIControlStateWrapper: UIImage] = [
-            UIControlStateWrapper(state: .normal): UIImage(named: "camera-icon-unselected", in: Bundle(for: Class.self), compatibleWith: nil)!,
-            UIControlStateWrapper(state: .selected): UIImage(named: "camera-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!,
-            UIControlStateWrapper(state: .highlighted): UIImage(named: "camera-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!
+            UIControlStateWrapper(state: .normal): UIImage(named: "mic-icon-unselected", in: Bundle(for: Class.self), compatibleWith: nil)!,
+            UIControlStateWrapper(state: .selected): UIImage(named: "mic-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!,
+            UIControlStateWrapper(state: .highlighted): UIImage(named: "mic-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!
         ]
         return TabInputButtonAppearance(images: images, size: nil)
     }
