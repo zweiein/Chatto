@@ -25,7 +25,7 @@
 import Foundation
 
 open class SpeechChatInputItem: ChatInputItemProtocol {
-    typealias Class = PhotosChatInputItem
+    typealias Class = SpeechChatInputItem
     
     public var photoInputHandler: ((UIImage) -> Void)?
     public var cameraPermissionHandler: (() -> Void)?
@@ -35,8 +35,8 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
     let buttonAppearance: TabInputButtonAppearance
     let inputViewAppearance: PhotosInputViewAppearance
     public init(presentingController: UIViewController?,
-                tabInputButtonAppearance: TabInputButtonAppearance = PhotosChatInputItem.createDefaultButtonAppearance(),
-                inputViewAppearance: PhotosInputViewAppearance = PhotosChatInputItem.createDefaultInputViewAppearance()) {
+                tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance(),
+                inputViewAppearance: PhotosInputViewAppearance = SpeechChatInputItem.createDefaultInputViewAppearance()) {
         self.presentingController = presentingController
         self.buttonAppearance = tabInputButtonAppearance
         self.inputViewAppearance = inputViewAppearance
@@ -44,9 +44,9 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
     
     public static func createDefaultButtonAppearance() -> TabInputButtonAppearance {
         let images: [UIControlStateWrapper: UIImage] = [
-            UIControlStateWrapper(state: .normal): UIImage(named: "camera-icon-unselected", in: Bundle(for: Class.self), compatibleWith: nil)!,
-            UIControlStateWrapper(state: .selected): UIImage(named: "camera-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!,
-            UIControlStateWrapper(state: .highlighted): UIImage(named: "camera-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!
+            UIControlStateWrapper(state: .normal): UIImage(named: "speech-icon-unselected", in: Bundle(for: Class.self), compatibleWith: nil)!,
+            UIControlStateWrapper(state: .selected): UIImage(named: "speech-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!,
+            UIControlStateWrapper(state: .highlighted): UIImage(named: "speech-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!
         ]
         return TabInputButtonAppearance(images: images, size: nil)
     }
