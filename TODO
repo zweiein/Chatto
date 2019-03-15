@@ -1,3 +1,11 @@
+Requirements
+=====
+ * Xcode 10.1
+ * swift 4.2
+ * ApiAI 0.7.2
+ * Chatto 3.3.1
+ * ChattoAdditions 3.3.1
+
 TODO
 ======
  * Speech input 
