@@ -49,7 +49,8 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
             UIControlStateWrapper(state: .highlighted): UIImage(named: "mic-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!
         ]
         print("Button Image Name: mic-icon")
-        return TabInputButtonAppearance(images: images, size: nil)
+        return TabInputButtonAppearance(images: images, size: CGSize(width: 20, height: 20))
+//        return TabInputButtonAppearance(images: images, size: nil)
     }
     
     public static func createDefaultInputViewAppearance() -> PhotosInputViewAppearance {
