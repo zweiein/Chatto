@@ -90,7 +90,8 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
     }
     
     open var inputView: UIView? {
-        return self.speechInputView as? UIView
+        // return self.speechInputView as? UIView
+        return UIView
     }
     
     open var tabView: UIView {
@@ -121,4 +122,4 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
 //     func inputViewDidRequestPhotoLibraryPermission(_ inputView: PhotosInputViewProtocol) {
 //         self.photosPermissionHandler?()
 //     }
-}
+// }
