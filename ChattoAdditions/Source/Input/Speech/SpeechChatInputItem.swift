@@ -35,7 +35,7 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
     // public var cameraPermissionHandler: (() -> Void)?
     // public var photosPermissionHandler: (() -> Void)?
     
-    // public weak var presentingController: UIViewController?
+    public weak var presentingController: UIViewController?
     
     let buttonAppearance: TabInputButtonAppearance
     // let inputViewAppearance: PhotosInputViewAppearance
