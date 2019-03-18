@@ -23,26 +23,30 @@
  */
 
 import Foundation
+import AVFoundation
 
 open class SpeechChatInputItem: ChatInputItemProtocol {
     typealias Class = SpeechChatInputItem
     
     public var microphonePermissionHandler: (() -> Void)?
-    public var speechInputHandler: ((UIImage) -> Void)?
+    // public var speechInputHandler: ((UIImage) -> Void)?
+    public var speechInputHandler: ((String) -> Void)?
     
-    public var cameraPermissionHandler: (() -> Void)?
-    public var photosPermissionHandler: (() -> Void)?
+    // public var cameraPermissionHandler: (() -> Void)?
+    // public var photosPermissionHandler: (() -> Void)?
     
-    public weak var presentingController: UIViewController?
+    // public weak var presentingController: UIViewController?
     
     let buttonAppearance: TabInputButtonAppearance
-    let inputViewAppearance: PhotosInputViewAppearance
+    // let inputViewAppearance: PhotosInputViewAppearance
+    // public init(presentingController: UIViewController?,
+    //             tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance(),
+    //             inputViewAppearance: PhotosInputViewAppearance = SpeechChatInputItem.createDefaultInputViewAppearance()) {
     public init(presentingController: UIViewController?,
-                tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance(),
-                inputViewAppearance: PhotosInputViewAppearance = SpeechChatInputItem.createDefaultInputViewAppearance()) {
-        self.presentingController = presentingController
+        tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance()) {
+        // self.presentingController = presentingController
         self.buttonAppearance = tabInputButtonAppearance
-        self.inputViewAppearance = inputViewAppearance
+        // self.inputViewAppearance = inputViewAppearance
     }
     
     public static func createDefaultButtonAppearance() -> TabInputButtonAppearance {
@@ -55,19 +59,19 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
 //        return TabInputButtonAppearance(images: images, size: nil)
     }
     
-    public static func createDefaultInputViewAppearance() -> PhotosInputViewAppearance {
-        return PhotosInputViewAppearance(liveCameraCellAppearence: LiveCameraCellAppearance.createDefaultAppearance())
-    }
+    // public static func createDefaultInputViewAppearance() -> PhotosInputViewAppearance {
+    //     return PhotosInputViewAppearance(liveCameraCellAppearence: LiveCameraCellAppearance.createDefaultAppearance())
+    // }
     
     lazy private var internalTabView: UIButton = {
         return TabInputButton.makeInputButton(withAppearance: self.buttonAppearance, accessibilityID: "speech.chat.input.view")
     }()
     
-    lazy var speechInputView: PhotosInputViewProtocol = {
-        let speechInputView = PhotosInputView(presentingController: self.presentingController, appearance: self.inputViewAppearance)
-        speechInputView.delegate = self
-        return speechInputView
-    }()
+    // lazy var speechInputView: PhotosInputViewProtocol = {
+    //     let speechInputView = PhotosInputView(presentingController: self.presentingController, appearance: self.inputViewAppearance)
+    //     speechInputView.delegate = self
+    //     return speechInputView
+    // }()
     
     open var selected = false {
         didSet {
@@ -101,102 +105,20 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
 }
 
 // MARK: - PhotosInputViewDelegate
-extension SpeechChatInputItem: PhotosInputViewDelegate {
-    func inputView(_ inputView: PhotosInputViewProtocol, didSelectImage image: UIImage) {
-        self.speechInputHandler?(image)
-    }
+// extension SpeechChatInputItem: PhotosInputViewDelegate {
+//     func inputView(_ inputView: PhotosInputViewProtocol, didSelectImage image: UIImage) {
+//         self.speechInputHandler?(image)
+//     }
     
-    func inputViewDidRequestCameraPermission(_ inputView: PhotosInputViewProtocol) {
-        self.cameraPermissionHandler?()
-    }
+//     func inputViewDidRequestMicrophonePermission(_ inputView: PhotosInputViewProtocol) {
+//         self.microphonePermissionHandler?()
+//     }
+
+//     func inputViewDidRequestCameraPermission(_ inputView: PhotosInputViewProtocol) {
+//         self.cameraPermissionHandler?()
+//     }
     
-    func inputViewDidRequestPhotoLibraryPermission(_ inputView: PhotosInputViewProtocol) {
-        self.photosPermissionHandler?()
-    }
+//     func inputViewDidRequestPhotoLibraryPermission(_ inputView: PhotosInputViewProtocol) {
+//         self.photosPermissionHandler?()
+//     }
 }
-/*
-import Foundation
-
-open class SpeechChatInputItem: ChatInputItemProtocol {
-    typealias Class = SpeechChatInputItem
-
-    public var speechInputHandler: ((UIImage) -> Void)?
-    public var microphonePermissionHandler: (() -> Void)?
-    public weak var presentingController: UIViewController?
-
-    let buttonAppearance: TabInputButtonAppearance
-    let inputViewAppearance: PhotosInputViewAppearance
-    public init(presentingController: UIViewController?,
-                tabInputButtonAppearance: TabInputButtonAppearance = PhotosChatInputItem.createDefaultButtonAppearance(),
-                inputViewAppearance: PhotosInputViewAppearance = PhotosChatInputItem.createDefaultInputViewAppearance()) {
-        self.presentingController = presentingController
-        self.buttonAppearance = tabInputButtonAppearance
-        self.inputViewAppearance = inputViewAppearance
-    }
-
-    public static func createDefaultButtonAppearance() -> TabInputButtonAppearance {
-        let images: [UIControlStateWrapper: UIImage] = [
-            UIControlStateWrapper(state: .normal): UIImage(named: "speech-icon-unselected", in: Bundle(for: Class.self), compatibleWith: nil)!,
-            UIControlStateWrapper(state: .selected): UIImage(named: "speech-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!,
-            UIControlStateWrapper(state: .highlighted): UIImage(named: "speech-icon-selected", in: Bundle(for: Class.self), compatibleWith: nil)!
-        ]
-        return TabInputButtonAppearance(images: images, size: nil)
-    }
-
-    public static func createDefaultInputViewAppearance() -> PhotosInputViewAppearance {
-        return PhotosInputViewAppearance(liveCameraCellAppearence: LiveCameraCellAppearance.createDefaultAppearance())
-    }
-
-    lazy private var internalTabView: UIButton = {
-        return TabInputButton.makeInputButton(withAppearance: self.buttonAppearance, accessibilityID: "speech.chat.input.view")
-    }()
-
-    lazy var speechInputView: PhotosInputViewProtocol = {
-        let speechInputView = SpeechInputView(presentingController: self.presentingController, appearance: self.inputViewAppearance)
-        speechInputView.delegate = self
-        return speechInputView
-    }()
-
-    open var selected = false {
-        didSet {
-            self.internalTabView.isSelected = self.selected
-        }
-    }
-
-    // MARK: - ChatInputItemProtocol
-
-    open var presentationMode: ChatInputItemPresentationMode {
-        return .customView
-    }
-
-    open var showsSendButton: Bool {
-        return false
-    }
-
-    open var inputView: UIView? {
-        return self.speechInputView as? UIView
-    }
-
-    open var tabView: UIView {
-        return self.internalTabView
-    }
-
-    open func handleInput(_ input: AnyObject) {
-        if let image = input as? UIImage {
-            self.speechInputHandler?(image)
-        }
-    }
-}
-
-// MARK: - SpeechInputViewDelegate
-extension SpeechChatInputItem: PhotosInputViewDelegate {
-    func inputView(_ inputView: PhotosInputViewProtocol, didSelectImage image: UIImage) {
-        self.speechInputHandler?(image)
-    }
-
-    func inputViewDidRequestMicrophonePermission(_ inputView: SpeechInputViewProtocol) {
-        self.microphonePermissionHandler?()
-    }
-
-}
-*/
