@@ -67,11 +67,11 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
         return TabInputButton.makeInputButton(withAppearance: self.buttonAppearance, accessibilityID: "speech.chat.input.view")
     }()
     
-    // lazy var speechInputView: PhotosInputViewProtocol = {
-    //     let speechInputView = PhotosInputView(presentingController: self.presentingController, appearance: self.inputViewAppearance)
-    //     speechInputView.delegate = self
-    //     return speechInputView
-    // }()
+    lazy var speechInputView: PhotosInputViewProtocol = {
+        let speechInputView = PhotosInputView(presentingController: self.presentingController, appearance: self.inputViewAppearance)
+        speechInputView.delegate = self
+        return speechInputView
+    }()
     
     open var selected = false {
         didSet {
@@ -90,17 +90,23 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
     }
     
     open var inputView: UIView? {
-        // return self.speechInputView as? UIView
-        return UIView
+        return self.speechInputView as? UIView
+        // return UIView
     }
     
     open var tabView: UIView {
         return self.internalTabView
     }
     
+    // open func handleInput(_ input: AnyObject) {
+    //     if let image = input as? UIImage {
+    //         self.speechInputHandler?(image)
+    //     }
+    // }
+
     open func handleInput(_ input: AnyObject) {
-        if let image = input as? UIImage {
-            self.speechInputHandler?(image)
+        if let text = input as? String {
+            self.speechInputHandler?(text)
         }
     }
 }
