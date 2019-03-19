@@ -27,7 +27,7 @@ import AVFoundation
 
 open class SpeechChatInputItem {
     typealias Class = SpeechChatInputItem
-    public var textInputHandler: ((String) -> Void)?
+    public var speechInputHandler: ((String) -> Void)?
 
     let buttonAppearance: TabInputButtonAppearance
     public init(tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance()) {
