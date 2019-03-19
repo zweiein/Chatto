@@ -40,7 +40,7 @@ open class SpeechChatInputItem {
             UIControlStateWrapper(state: .selected): UIImage(named: "mic-icon-selected", in: Bundle(for: SpeechChatInputItem.self), compatibleWith: nil)!,
             UIControlStateWrapper(state: .highlighted): UIImage(named: "mic-icon-selected", in: Bundle(for: SpeechChatInputItem.self), compatibleWith: nil)!
         ]
-        return TabInputButtonAppearance(images: images, size: nil)
+        return TabInputButtonAppearance(images: images, size: CGSize(width: 20, height: 20))
     }
 
     lazy fileprivate var internalTabView: TabInputButton = {
