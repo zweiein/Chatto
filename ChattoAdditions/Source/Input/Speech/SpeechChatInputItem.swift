@@ -38,12 +38,12 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
     public weak var presentingController: UIViewController?
     
     let buttonAppearance: TabInputButtonAppearance
-    let inputViewAppearance: PhotosInputViewAppearance
-    public init(presentingController: UIViewController?,
-                tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance(),
-                inputViewAppearance: PhotosInputViewAppearance = SpeechChatInputItem.createDefaultInputViewAppearance()) {
+    // let inputViewAppearance: PhotosInputViewAppearance
     // public init(presentingController: UIViewController?,
-    //     tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance()) {
+    //             tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance(),
+    //             inputViewAppearance: PhotosInputViewAppearance = SpeechChatInputItem.createDefaultInputViewAppearance()) {
+    public init(presentingController: UIViewController?,
+        tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance()) {
         self.presentingController = presentingController
         self.buttonAppearance = tabInputButtonAppearance
         // self.inputViewAppearance = inputViewAppearance
@@ -59,16 +59,17 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
 //        return TabInputButtonAppearance(images: images, size: nil)
     }
     
-    public static func createDefaultInputViewAppearance() -> PhotosInputViewAppearance {
-        return PhotosInputViewAppearance(liveCameraCellAppearence: LiveCameraCellAppearance.createDefaultAppearance())
-    }
+    // public static func createDefaultInputViewAppearance() -> PhotosInputViewAppearance {
+    //     return PhotosInputViewAppearance(liveCameraCellAppearence: LiveCameraCellAppearance.createDefaultAppearance())
+    // }
     
     lazy private var internalTabView: UIButton = {
         return TabInputButton.makeInputButton(withAppearance: self.buttonAppearance, accessibilityID: "speech.chat.input.view")
     }()
     
     lazy var speechInputView: PhotosInputViewProtocol = {
-        let speechInputView = PhotosInputView(presentingController: self.presentingController, appearance: self.inputViewAppearance)
+        // let speechInputView = PhotosInputView(presentingController: self.presentingController, appearance: self.inputViewAppearance)
+        let speechInputView = PhotosInputView(presentingController: self.presentingController)
         speechInputView.delegate = self
         return speechInputView
     }()

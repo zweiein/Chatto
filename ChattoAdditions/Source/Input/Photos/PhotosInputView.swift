@@ -25,6 +25,7 @@
 import UIKit
 import Photos
 import Chatto
+import AVFoundation
 
 public struct PhotosInputViewAppearance {
     public var liveCameraCellAppearence: LiveCameraCellAppearance
