@@ -88,10 +88,10 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
         self.commonInit()
     }
 
-    deinit {
-        self.uiView.dataSource = nil
-        self.uiView.delegate = nil
-    }
+    // deinit {
+    //     self.uiView.dataSource = nil
+    //     self.uiView.delegate = nil
+    // }
 
     private func commonInit() {
         self.uiView()
