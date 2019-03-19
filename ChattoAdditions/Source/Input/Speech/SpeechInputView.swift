@@ -94,7 +94,7 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
     // }
 
     private func commonInit() {
-        self.uiView()
+        self.uiView(frame: CGRect.zero)
         // self.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         // self.configureCollectionView()
         // self.configureItemSizeCalculator()

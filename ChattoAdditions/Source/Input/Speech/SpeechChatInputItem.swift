@@ -70,7 +70,8 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
     lazy var speechInputView: SpeechInputViewProtocol = {
         // let speechInputView = PhotosInputView(presentingController: self.presentingController, appearance: self.inputViewAppearance)
         let speechInputView = SpeechInputView(presentingController: self.presentingController)
-        speechInputView.delegate = self
+        // speechInputView.delegate = self
+        speechInputView.delegate = self as! SpeechInputViewDelegate
         return speechInputView
     }()
     
