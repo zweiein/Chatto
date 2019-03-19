@@ -25,6 +25,63 @@
 import Foundation
 import AVFoundation
 
+open class SpeechChatInputItem {
+    typealias Class = SpeechChatInputItem
+    public var textInputHandler: ((String) -> Void)?
+
+    let buttonAppearance: TabInputButtonAppearance
+    public init(tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance()) {
+        self.buttonAppearance = tabInputButtonAppearance
+    }
+
+    public static func createDefaultButtonAppearance() -> TabInputButtonAppearance {
+        let images: [UIControlStateWrapper: UIImage] = [
+            UIControlStateWrapper(state: .normal): UIImage(named: "mic-icon-unselected", in: Bundle(for: SpeechChatInputItem.self), compatibleWith: nil)!,
+            UIControlStateWrapper(state: .selected): UIImage(named: "mic-icon-selected", in: Bundle(for: SpeechChatInputItem.self), compatibleWith: nil)!,
+            UIControlStateWrapper(state: .highlighted): UIImage(named: "mic-icon-selected", in: Bundle(for: SpeechChatInputItem.self), compatibleWith: nil)!
+        ]
+        return TabInputButtonAppearance(images: images, size: nil)
+    }
+
+    lazy fileprivate var internalTabView: TabInputButton = {
+        return TabInputButton.makeInputButton(withAppearance: self.buttonAppearance, accessibilityID: "speech.chat.input.view")
+    }()
+
+    open var selected = false {
+        didSet {
+            self.internalTabView.isSelected = self.selected
+        }
+    }
+}
+
+// MARK: - ChatInputItemProtocol
+extension SpeechChatInputItem: ChatInputItemProtocol {
+    public var presentationMode: ChatInputItemPresentationMode {
+        return .keyboard
+    }
+
+    public var showsSendButton: Bool {
+        return true
+    }
+
+    public var inputView: UIView? {
+        return nil
+    }
+
+    public var tabView: UIView {
+        return self.internalTabView
+    }
+
+    public func handleInput(_ input: AnyObject) {
+        if let text = input as? String {
+            self.textInputHandler?(text)
+        }
+    }
+}
+
+
+
+/*
 open class SpeechChatInputItem: ChatInputItemProtocol {
     typealias Class = SpeechChatInputItem
     
@@ -131,3 +188,4 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
 //         self.photosPermissionHandler?()
 //     }
 // }
+*/
