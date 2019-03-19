@@ -67,9 +67,9 @@ open class SpeechChatInputItem: ChatInputItemProtocol {
         return TabInputButton.makeInputButton(withAppearance: self.buttonAppearance, accessibilityID: "speech.chat.input.view")
     }()
     
-    lazy var speechInputView: PhotosInputViewProtocol = {
+    lazy var speechInputView: SpeechInputViewProtocol = {
         // let speechInputView = PhotosInputView(presentingController: self.presentingController, appearance: self.inputViewAppearance)
-        let speechInputView = PhotosInputView(presentingController: self.presentingController)
+        let speechInputView = SpeechInputView(presentingController: self.presentingController)
         speechInputView.delegate = self
         return speechInputView
     }()
