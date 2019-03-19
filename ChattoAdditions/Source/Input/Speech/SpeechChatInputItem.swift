@@ -74,7 +74,7 @@ extension SpeechChatInputItem: ChatInputItemProtocol {
 
     public func handleInput(_ input: AnyObject) {
         if let text = input as? String {
-            self.textInputHandler?(text)
+            self.speechInputHandler?(text)
         }
     }
 }
