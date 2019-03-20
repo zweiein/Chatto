@@ -47,10 +47,16 @@ open class SpeechChatInputItem {
     }
 
     lazy var speechIpuntView: SpeechInputViewProtocol = {
-        let speechInputView = SpeechInputView()
+        let speechInputView = SpeechInputView(presentingController: self.presentingController)
         speechInputView.delegate = self
         return speechInputView
     }()
+
+    // lazy var speechIpuntView: SpeechInputViewProtocol = {
+    //     let speechInputView = SpeechInputView()
+    //     speechInputView.delegate = self
+    //     return speechInputView
+    // }()
 
 
     lazy fileprivate var internalTabView: TabInputButton = {
