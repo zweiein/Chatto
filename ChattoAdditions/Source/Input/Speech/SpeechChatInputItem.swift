@@ -28,10 +28,13 @@ import AVFoundation
 open class SpeechChatInputItem {
     typealias Class = SpeechChatInputItem
     public var speechInputHandler: ((String) -> Void)?
+    public weak var presentingController: UIViewController?
 
     let buttonAppearance: TabInputButtonAppearance
-    public init(tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance()) {
+    public init(tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance(), 
+                presentingController: UIViewController?) {
         self.buttonAppearance = tabInputButtonAppearance
+        self.presentingController = presentingController
     }
 
     public static func createDefaultButtonAppearance() -> TabInputButtonAppearance {
@@ -43,7 +46,7 @@ open class SpeechChatInputItem {
         return TabInputButtonAppearance(images: images, size: CGSize(width: 20, height: 20))
     }
 
-    lazy var speechIpuntView: SpeechInputViewProtocol {
+    lazy var speechIpuntView: SpeechInputViewProtocol = {
         let speechInputView = SpeechInputView()
         speechInputView.delegate = self
         return speechInputView

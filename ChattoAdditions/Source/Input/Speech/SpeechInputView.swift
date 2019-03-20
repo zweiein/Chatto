@@ -27,180 +27,259 @@ import Photos
 import Chatto
 import AVFoundation
 
+// public struct PhotosInputViewAppearance {
+//     public var liveCameraCellAppearence: LiveCameraCellAppearance
+//     public init(liveCameraCellAppearence: LiveCameraCellAppearance) {
+//         self.liveCameraCellAppearence = liveCameraCellAppearence
+//     }
+// }
+
 protocol SpeechInputViewProtocol {
-    var delegate: SpeechInputViewStyleProtocol? { get set }
+    var delegate: SpeechInputViewDelegate? { get set }
+    var presentingController: UIViewController? { get }
 }
 
-protocol SpeechInputViewStyleProtocol {
-    func bubbleImage(viewModel viewModel: AudioMessageViewModelProtocol) -> UIImage
-    func bubbleImageBorder(viewModel viewModel: AudioMessageViewModelProtocol) -> UIImage?
+protocol SpeechInputViewDelegate: class {
+    func inputView(_ inputView: SpeechInputViewProtocol, didSelectImage image: UIImage)
 }
 
-public class SpeechInputView: UIView, MaximumLayoutWidthSpecificable, BackgroundSizingQueryable {
-    
-    public var viewContext: ViewContext = .Normal
-    public var animationDuration: CFTimeInterval = 0.33
-    public var preferredMaxLayoutWidth: CGFloat = 0
-    
-    public override init(frame: CGRect) {
+class SpeechInputView: UIView, SpeechInputViewProtocol {
+
+    // fileprivate struct Constants {
+    //     static let liveCameraItemIndex = 0
+    // }
+
+
+    fileprivate var uiView: UIView!
+    // fileprivate lazy var collectionViewQueue = SerialTaskQueue()
+    // fileprivate var collectionView: UICollectionView!
+    // fileprivate var collectionViewLayout: UICollectionViewFlowLayout!
+    // fileprivate var dataProvider: PhotosInputDataProviderProtocol!
+    // fileprivate var cellProvider: PhotosInputCellProviderProtocol!
+    // fileprivate var itemSizeCalculator: PhotosInputViewItemSizeCalculator!
+
+    // var cameraAuthorizationStatus: AVAuthorizationStatus {
+    //     return AVCaptureDevice.authorizationStatus(for: .video)
+    // }
+
+    // var photoLibraryAuthorizationStatus: PHAuthorizationStatus {
+    //     return PHPhotoLibrary.authorizationStatus()
+    // }
+
+    weak var delegate: SpeechInputViewDelegate?
+    override init(frame: CGRect) {
         super.init(frame: frame)
         self.commonInit()
     }
-    
-    public required init?(coder aDecoder: NSCoder) {
+
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         self.commonInit()
     }
-    
+
+    weak var presentingController: UIViewController?
+    // var appearance: PhotosInputViewAppearance?
+    init(presentingController: UIViewController?) {
+        super.init(frame: CGRect.zero)
+        self.presentingController = presentingController
+        // self.appearance = appearance
+        self.commonInit()
+    }
+
+    // deinit {
+    //     self.uiView.dataSource = nil
+    //     self.uiView.delegate = nil
+    // }
+
     private func commonInit() {
-        self.autoresizesSubviews = false
-        self.addSubview(self.bubbleImageView)
-        self.addSubview(self.voiceView)
-        self.addSubview(self.durationLabel)
+        // self.uiView(frame: CGRect.zero)
+        print("initialize SpeechInputView.commonInit()")
+        // self.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        // self.configureCollectionView()
+        // self.configureItemSizeCalculator()
+        // self.dataProvider = PhotosInputPlaceholderDataProvider()
+        // self.cellProvider = PhotosInputPlaceholderCellProvider(collectionView: self.collectionView)
+        // self.collectionViewQueue.start()
+        // self.requestAccessToVideo()
+        // self.requestAccessToPhoto()
     }
-    
-    private var borderImageView: UIImageView = UIImageView()
-    private lazy var bubbleImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.addSubview(self.borderImageView)
-        return imageView
-    }()
-    
-    private lazy var voiceView: UIImageView = {
-        let voiceView = UIImageView()
-        // animation initial state
-        voiceView.image = R.image.chat_voice_white_outgoing_anim3()
-        voiceView.animationImages = [
-            R.image.chat_voice_white_outgoing_anim1()!,
-            R.image.chat_voice_white_outgoing_anim2()!,
-            R.image.chat_voice_white_outgoing_anim3()!
-        ]
-        voiceView.animationDuration = 1
 
-        
-        return voiceView
-    }()
-    
-    private lazy var durationLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = UIColor(red:0.62, green:0.62, blue:0.62, alpha:1.00)
-        label.font = label.font.fontWithSize(14)
-        
-        return label
-    }()
-    
-    var viewModel: AudioMessageViewModelProtocol! {
-        didSet {
-            self.updateViews()
-        }
-    }
-    
-    var style: SpeechInputViewStyleProtocol! {
-        didSet {
-            self.updateViews()
-        }
-    }
-    
-    public private(set) var isUpdating: Bool = false
-    public func performBatchUpdates(updateClosure: () -> Void, animated: Bool, completion: (() ->())?) {
-        self.isUpdating = true
-        let updateAndRefreshViews = {
-            updateClosure()
-            self.isUpdating = false
-            self.updateViews()
-            if animated {
-                self.layoutIfNeeded()
-            }
-        }
-        if animated {
-            UIView.animateWithDuration(self.animationDuration, animations: updateAndRefreshViews, completion: { (finished) -> Void in
-                completion?()
-            })
-        } else {
-            updateAndRefreshViews()
-        }
-    }
-    
-    public func updateViews() {
-        if self.viewContext == .Sizing { return }
-        if isUpdating { return }
-        guard let viewModel = self.viewModel, style = self.style else { return }
-        
-        self.updateVoiceView()
-        let bubbleImage = style.bubbleImage(viewModel: viewModel)
-        let borderImage = style.bubbleImageBorder(viewModel: viewModel)
-        if self.bubbleImageView.image != bubbleImage {
-            self.bubbleImageView.image = bubbleImage
-        }
-        if self.borderImageView.image != borderImage {
-            self.borderImageView.image = borderImage
-        }
-        self.durationLabel.text = "\(viewModel.duration)″"
-    }
-    
-    public func playAnimation() {
-        // make the animation start
-        self.voiceView.startAnimating()
-    }
-    
-    // MARK: Layout
-    public override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        let layout = self.calculateTextBubbleLayout(maximumWidth: self.preferredMaxLayoutWidth)
-        self.bubbleImageView.bma_rect = layout.bubbleFrame
-        self.borderImageView.bma_rect = self.bubbleImageView.bounds
-        let voiceIconHeight: CGFloat = 15.0
-        self.voiceView.frame = CGRectMake(layout.bubbleFrame.width - 36, (layout.bubbleFrame.height - voiceIconHeight) / 2, voiceIconHeight, voiceIconHeight)
-        self.durationLabel.frame = CGRectMake(-21, layout.bubbleFrame.height / 2, 20, 20)
-    }
-    
-    public override func sizeThatFits(size: CGSize) -> CGSize {
-        return self.calculateTextBubbleLayout(maximumWidth: size.width).size
-    }
-    
-    public var canCalculateSizeInBackground: Bool {
-        return true
-    }
-    
-    // MARK: Private Helper Methods
-    private func updateVoiceView() {
-        
-    }
-    
-    private func calculateTextBubbleLayout(maximumWidth maximumWidth: CGFloat) -> SpeechInputViewLayoutModel {
-        let layoutContext = SpeechInputViewLayoutModel.LayoutContext(
-            preferredMaxLayoutWidth: maximumWidth
-        )
-        let layoutModel = SpeechInputViewLayoutModel(layoutContext: layoutContext)
-        layoutModel.calculateLayout()
-        
-        return layoutModel
-    }
+    // private func configureItemSizeCalculator() {
+    //     self.itemSizeCalculator = PhotosInputViewItemSizeCalculator()
+    //     self.itemSizeCalculator.itemsPerRow = 3
+    //     self.itemSizeCalculator.interitemSpace = 1
+    // }
+
+    // private func requestAccessToVideo() {
+    //     guard self.cameraAuthorizationStatus != .authorized else { return }
+
+    //     AVCaptureDevice.requestAccess(for: .video) { (_) -> Void in
+    //         DispatchQueue.main.async(execute: { () -> Void in
+    //             self.reloadVideoItem()
+    //         })
+    //     }
+    // }
+
+    // private func reloadVideoItem() {
+    //     self.collectionViewQueue.addTask { [weak self] (completion) in
+    //         guard let sSelf = self else { return }
+
+    //         sSelf.collectionView.performBatchUpdates({
+    //             sSelf.collectionView.reloadItems(at: [IndexPath(item: Constants.liveCameraItemIndex, section: 0)])
+    //         }, completion: { (_) in
+    //             DispatchQueue.main.async(execute: completion)
+    //         })
+    //     }
+    // }
+
+    // private func requestAccessToPhoto() {
+    //     guard self.photoLibraryAuthorizationStatus != .authorized else {
+    //         self.replacePlaceholderItemsWithPhotoItems()
+    //         return
+    //     }
+
+    //     PHPhotoLibrary.requestAuthorization { (status: PHAuthorizationStatus) -> Void in
+    //         if status == PHAuthorizationStatus.authorized {
+    //             DispatchQueue.main.async(execute: { () -> Void in
+    //                 self.replacePlaceholderItemsWithPhotoItems()
+    //             })
+    //         }
+    //     }
+    // }
+
+    // private func replacePlaceholderItemsWithPhotoItems() {
+    //     self.collectionViewQueue.addTask { [weak self] (completion) in
+    //         guard let sSelf = self else { return }
+
+    //         let newDataProvider = PhotosInputWithPlaceholdersDataProvider(photosDataProvider: PhotosInputDataProvider(), placeholdersDataProvider: PhotosInputPlaceholderDataProvider())
+    //         newDataProvider.delegate = sSelf
+    //         sSelf.dataProvider = newDataProvider
+    //         sSelf.cellProvider = PhotosInputCellProvider(collectionView: sSelf.collectionView, dataProvider: newDataProvider)
+    //         sSelf.collectionView.reloadData()
+    //         DispatchQueue.main.async(execute: completion)
+    //     }
+    // }
+
+    // func reload() {
+    //     self.collectionViewQueue.addTask { [weak self] (completion) in
+    //         self?.collectionView.reloadData()
+    //         DispatchQueue.main.async(execute: completion)
+    //     }
+    // }
+
+    // fileprivate lazy var cameraPicker: PhotosInputCameraPicker = {
+    //     return PhotosInputCameraPicker(presentingController: self.presentingController)
+    // }()
+
+    // fileprivate lazy var liveCameraPresenter: LiveCameraCellPresenter = {
+    //     return LiveCameraCellPresenter(cellAppearance: self.appearance?.liveCameraCellAppearence ?? LiveCameraCellAppearance.createDefaultAppearance())
+    // }()
 }
 
+// extension PhotosInputView: UICollectionViewDataSource {
 
-private class SpeechInputViewLayoutModel {
-    var bubbleFrame: CGRect = CGRect.zero
-    var size: CGSize = CGSize.zero
-    
-    struct LayoutContext {
-        let preferredMaxLayoutWidth: CGFloat
-        //        let textInsets: UIEdgeInsets
-    }
-    
-    let layoutContext: LayoutContext
-    init(layoutContext: LayoutContext) {
-        self.layoutContext = layoutContext
-    }
-    
-    func calculateLayout() {
-        //        let textHorizontalInset = self.layoutContext.textInsets.bma_horziontalInset
-        //        let maxTextWidth = self.layoutContext.preferredMaxLayoutWidth - textHorizontalInset
-        //        let textSize = self.textSizeThatFitsWidth(maxTextWidth)
-        //        let bubbleSize = textSize.bma_outsetBy(dx: textHorizontalInset, dy: self.layoutContext.textInsets.bma_verticalInset)
-        let bubbleSize = CGSizeMake(75.0, 35.0)
-        self.bubbleFrame = CGRect(origin: CGPoint.zero, size: bubbleSize)
-        self.size = bubbleSize
-    }
-}
+//     func configureCollectionView() {
+//         self.collectionViewLayout = PhotosInputCollectionViewLayout()
+//         self.collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: self.collectionViewLayout)
+//         self.collectionView.backgroundColor = UIColor.white
+//         self.collectionView.translatesAutoresizingMaskIntoConstraints = false
+//         LiveCameraCellPresenter.registerCells(collectionView: self.collectionView)
+
+//         self.collectionView.dataSource = self
+//         self.collectionView.delegate = self
+
+//         self.addSubview(self.collectionView)
+//         self.addConstraint(NSLayoutConstraint(item: self.collectionView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1, constant: 0))
+//         self.addConstraint(NSLayoutConstraint(item: self.collectionView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1, constant: 0))
+//         self.addConstraint(NSLayoutConstraint(item: self.collectionView, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 0))
+//         self.addConstraint(NSLayoutConstraint(item: self.collectionView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: 0))
+//     }
+
+//     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+//         return self.dataProvider.count + 1
+//     }
+
+//     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+//         var cell: UICollectionViewCell
+//         if indexPath.item == Constants.liveCameraItemIndex {
+//             cell = self.liveCameraPresenter.dequeueCell(collectionView: collectionView, indexPath: indexPath)
+//         } else {
+//             cell = self.cellProvider.cellForItem(at: indexPath)
+//         }
+//         return cell
+//     }
+// }
+
+// extension PhotosInputView: UICollectionViewDelegateFlowLayout {
+//     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//         if indexPath.item == Constants.liveCameraItemIndex {
+//             if self.cameraAuthorizationStatus != .authorized {
+//                 self.delegate?.inputViewDidRequestCameraPermission(self)
+//             } else {
+//                 self.liveCameraPresenter.cameraPickerWillAppear()
+//                 self.cameraPicker.presentCameraPicker(onImageTaken: { [weak self] (image) in
+//                     guard let sSelf = self else { return }
+
+//                     if let image = image {
+//                         sSelf.delegate?.inputView(sSelf, didSelectImage: image)
+//                     }
+//                 }, onCameraPickerDismissed: { [weak self] in
+//                     self?.liveCameraPresenter.cameraPickerDidDisappear()
+//                 })
+//             }
+//         } else {
+//             if self.photoLibraryAuthorizationStatus != .authorized {
+//                 self.delegate?.inputViewDidRequestPhotoLibraryPermission(self)
+//             } else {
+//                 let request = self.dataProvider.requestFullImage(at: indexPath.item - 1, progressHandler: nil, completion: { [weak self] result in
+//                     guard let sSelf = self, let image = result.image else { return }
+//                     sSelf.delegate?.inputView(sSelf, didSelectImage: image)
+//                 })
+//                 self.cellProvider.configureFullImageLoadingIndicator(at: indexPath, request: request)
+//             }
+//         }
+//     }
+
+//     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+//         return self.itemSizeCalculator.itemSizeForWidth(collectionView.bounds.width, atIndex: indexPath.item)
+//     }
+
+//     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+//         return self.itemSizeCalculator.interitemSpace
+//     }
+
+//     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+//         return self.itemSizeCalculator.interitemSpace
+//     }
+
+//     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+//         if indexPath.item == Constants.liveCameraItemIndex {
+//             self.liveCameraPresenter.cellWillBeShown(cell)
+//         }
+//     }
+
+//     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+//         if indexPath.item == Constants.liveCameraItemIndex {
+//             self.liveCameraPresenter.cellWasHidden(cell)
+//         }
+//     }
+// }
+
+// extension PhotosInputView: PhotosInputDataProviderDelegate {
+//     func handlePhotosInputDataProviderUpdate(_ dataProvider: PhotosInputDataProviderProtocol, updateBlock: @escaping () -> Void) {
+//         self.collectionViewQueue.addTask { [weak self] (completion) in
+//             guard let sSelf = self else { return }
+
+//             updateBlock()
+//             sSelf.collectionView.reloadData()
+//             DispatchQueue.main.async(execute: completion)
+//         }
+//     }
+
+// }
+
+// private class PhotosInputCollectionViewLayout: UICollectionViewFlowLayout {
+//     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+//         return newBounds.width != self.collectionView?.bounds.width
+//     }
+// }
