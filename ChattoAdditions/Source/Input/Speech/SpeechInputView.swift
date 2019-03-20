@@ -27,12 +27,12 @@ import Photos
 import Chatto
 import AVFoundation
 
-protocol SpeechInputViewViewStyleProtocol {
+protocol SpeechInputViewStyleProtocol {
     func bubbleImage(viewModel viewModel: AudioMessageViewModelProtocol) -> UIImage
     func bubbleImageBorder(viewModel viewModel: AudioMessageViewModelProtocol) -> UIImage?
 }
 
-public class SpeechInputViewView: UIView, MaximumLayoutWidthSpecificable, BackgroundSizingQueryable {
+public class SpeechInputView: UIView, MaximumLayoutWidthSpecificable, BackgroundSizingQueryable {
     
     public var viewContext: ViewContext = .Normal
     public var animationDuration: CFTimeInterval = 0.33
@@ -91,7 +91,7 @@ public class SpeechInputViewView: UIView, MaximumLayoutWidthSpecificable, Backgr
         }
     }
     
-    var style: SpeechInputViewViewStyleProtocol! {
+    var style: SpeechInputViewStyleProtocol! {
         didSet {
             self.updateViews()
         }
