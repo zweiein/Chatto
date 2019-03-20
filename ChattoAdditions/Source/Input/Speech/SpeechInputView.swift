@@ -27,6 +27,10 @@ import Photos
 import Chatto
 import AVFoundation
 
+protocol SpeechInputViewProtocol {
+    var delegate: SpeechInputViewStyleProtocol? { get set }
+}
+
 protocol SpeechInputViewStyleProtocol {
     func bubbleImage(viewModel viewModel: AudioMessageViewModelProtocol) -> UIImage
     func bubbleImageBorder(viewModel viewModel: AudioMessageViewModelProtocol) -> UIImage?

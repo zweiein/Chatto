@@ -43,7 +43,12 @@ open class SpeechChatInputItem {
         return TabInputButtonAppearance(images: images, size: CGSize(width: 20, height: 20))
     }
 
-    let lazy speechIpuntView: SpeechInputView()
+    lazy var speechIpuntView: SpeechInputViewProtocol {
+        let speechInputView = SpeechInputView()
+        speechInputView.delegate = self
+        return speechInputView
+    }()
+
 
     lazy fileprivate var internalTabView: TabInputButton = {
         return TabInputButton.makeInputButton(withAppearance: self.buttonAppearance, accessibilityID: "speech.chat.input.view")
@@ -67,7 +72,7 @@ extension SpeechChatInputItem: ChatInputItemProtocol {
     }
 
     public var inputView: UIView? {
-        return self.speechIpuntView
+        return self.speechIpuntView as? UIView
     }
 
     public var tabView: UIView {
