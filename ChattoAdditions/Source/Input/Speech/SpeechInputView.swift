@@ -72,11 +72,12 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
     private func commonInit() {
         self.configureUIView()
         print("initialize SpeechInputView.commonInit()")
+    }
 
-        func configureUIView() {
-            self.uiView = UIView(frame: CGRect.zero)
-            self.addSubview(self.uiView)
-        }
+    private func configureUIView() {
+        self.uiView = UIView(frame: CGRect.zero)
+        
+        self.addSubview(self.uiView)
     }
 
 }
