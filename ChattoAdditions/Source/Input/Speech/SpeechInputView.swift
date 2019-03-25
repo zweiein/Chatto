@@ -103,6 +103,11 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
         // self.collectionViewQueue.start()
         // self.requestAccessToVideo()
         // self.requestAccessToPhoto()
+
+        func configureUIView() {
+            self.uiView = UIView(frame: CGRect.zero)
+            self.addSubview(self.uiView)
+        }
     }
 
     // private func configureItemSizeCalculator() {
@@ -177,12 +182,12 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
     // }()
 }
 
-extension SpeechInputView: UIView {
-    func configureUIView() {
-        self.uiView = UIView(frame: CGRect.zero)
-        self.addSubview(self.uiView)
-    }
-}
+// extension SpeechInputView: UIView {
+//     func configureUIView() {
+//         self.uiView = UIView(frame: CGRect.zero)
+//         self.addSubview(self.uiView)
+//     }
+// }
 
 // extension PhotosInputView: UICollectionViewDataSource {
 

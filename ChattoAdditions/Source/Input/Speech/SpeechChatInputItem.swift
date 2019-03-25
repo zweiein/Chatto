@@ -48,7 +48,7 @@ open class SpeechChatInputItem {
 
     lazy var speechIpuntView: SpeechInputViewProtocol = {
         let speechInputView = SpeechInputView(presentingController: self.presentingController)
-        speechInputView.delegate = self
+        // speechInputView.delegate = self
         return speechInputView
     }()
 
