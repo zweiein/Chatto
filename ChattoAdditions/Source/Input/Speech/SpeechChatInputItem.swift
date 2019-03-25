@@ -53,6 +53,11 @@ open class SpeechChatInputItem {
     }()
 
     // lazy var speechIpuntView: SpeechInputViewProtocol = {
+    //     let speechInputView = UIView(frame: CGRect)
+    //     return speechInputView
+    // }()
+
+    // lazy var speechIpuntView: SpeechInputViewProtocol = {
     //     let speechInputView = SpeechInputView()
     //     speechInputView.delegate = self
     //     return speechInputView

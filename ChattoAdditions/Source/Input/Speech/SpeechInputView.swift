@@ -93,6 +93,7 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
 
     private func commonInit() {
         // self.uiView(frame: CGRect.zero)
+        self.configureUIView()
         print("initialize SpeechInputView.commonInit()")
         // self.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         // self.configureCollectionView()
@@ -174,6 +175,13 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
     // fileprivate lazy var liveCameraPresenter: LiveCameraCellPresenter = {
     //     return LiveCameraCellPresenter(cellAppearance: self.appearance?.liveCameraCellAppearence ?? LiveCameraCellAppearance.createDefaultAppearance())
     // }()
+}
+
+extension SpeechInputView: UIView {
+    func configureUIView() {
+        self.uiView = UIView(frame: CGRect.zero)
+        self.addSubview(self.uiView)
+    }
 }
 
 // extension PhotosInputView: UICollectionViewDataSource {
