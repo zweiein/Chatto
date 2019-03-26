@@ -76,8 +76,19 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
 
     private func configureUIView() {
         self.uiView = UIView(frame: CGRect.zero)
-        
         self.addSubview(self.uiView)
+        
+        let printMessageButton = UIButton()      
+        printMessageButton = UIButton(frame: CGRect(x:0, y:335, width:120, height:40))
+        printMessageButton.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
+        printMessageButton.setTitle("Show", forState: .Normal)
+        printMessageButton.tag = 3
+        printMessageButton.addTarget(self, action: "ButtonPrintMessageTouched:", forControlEvents: .TouchUpInside)       
+        self.uiView.addSubview(printMessageButton)
+    }
+
+    func ButtonPrintMessageTouched(sender: UIButton!) {
+        print("button connect touched");
     }
 
 }
