@@ -78,7 +78,7 @@ open class SpeechChatInputItem {
 // MARK: - ChatInputItemProtocol
 extension SpeechChatInputItem: ChatInputItemProtocol {
     public var presentationMode: ChatInputItemPresentationMode {
-        return .customView
+        return .keyboard
     }
 
     public var showsSendButton: Bool {

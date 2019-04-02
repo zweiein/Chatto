@@ -45,6 +45,7 @@ protocol SpeechInputViewDelegate: class {
 
 class SpeechInputView: UIView, SpeechInputViewProtocol {
     fileprivate var uiView: UIView!
+    fileprivate var displayTextLabel: UILabel!
 
     weak var delegate: SpeechInputViewDelegate?
     override init(frame: CGRect) {
@@ -72,23 +73,46 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
     private func commonInit() {
         self.configureUIView()
         print("initialize SpeechInputView.commonInit()")
+        
+        //// label
+        let label = UILabel(frame: .zero)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.numberOfLines = 2
+        label.textColor = UIColor(white: 0.15, alpha: 1.0)
+        label.text = "Just a custom label. haha"
+        self.displayTextLabel = label
+        self.uiView.addSubview(label)
+        
+        //// button
+        let width = self.uiView.frame.midX + 100  // self.uiView.frame.size.width / 2
+        let height = self.uiView.frame.midY + 100  // self.uiView.frame.size.height / 2
+        print("[Button] w=\(width), h=\(height)")
+        var printMessageButton: UIButton! = {
+//            let button = UIButton(type: .custom)
+            let button = UIButton(frame: CGRect(x: width, y: height, width:120, height:40))
+            button.isUserInteractionEnabled = true
+            
+            button.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
+            button.addTarget(self, action: #selector(ButtonPrintMessageTouched(_:)), for: .touchUpInside)
+            button.setTitle("Record", for: .normal)
+            return button
+        }()
+        
+        print(printMessageButton)
+        self.addSubview(printMessageButton)
     }
 
     private func configureUIView() {
         self.uiView = UIView(frame: CGRect.zero)
+        self.uiView.isUserInteractionEnabled = true
         self.addSubview(self.uiView)
-        
-        let printMessageButton = UIButton()      
-        printMessageButton = UIButton(frame: CGRect(x:0, y:335, width:120, height:40))
-        printMessageButton.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
-        printMessageButton.setTitle("Show", forState: .Normal)
-        printMessageButton.tag = 3
-        printMessageButton.addTarget(self, action: "ButtonPrintMessageTouched:", forControlEvents: .TouchUpInside)       
-        self.uiView.addSubview(printMessageButton)
     }
 
-    func ButtonPrintMessageTouched(sender: UIButton!) {
-        print("button connect touched");
+    @objc private func ButtonPrintMessageTouched(_ sender: Any) {
+//    @objc func ButtonPrintMessageTouched() {
+        self.displayTextLabel.text = "Button <PrintMessage> have been touched"
+        print("Button <PrintMessage> have been touched");
     }
 
 }
