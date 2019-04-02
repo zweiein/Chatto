@@ -45,7 +45,8 @@ protocol SpeechInputViewDelegate: class {
 
 class SpeechInputView: UIView, SpeechInputViewProtocol {
     fileprivate var uiView: UIView!
-    fileprivate var displayTextLabel: UILabel!
+    @IBOutlet weak var displayTextLabel: UILabel!
+    @IBOutlet weak var recordButton: UIButton!
 
     weak var delegate: SpeechInputViewDelegate?
     override init(frame: CGRect) {
@@ -80,27 +81,40 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
         label.textAlignment = .center
         label.numberOfLines = 2
         label.textColor = UIColor(white: 0.15, alpha: 1.0)
-        label.text = "Just a custom label. haha"
+        label.text = "Click to Record"
         self.displayTextLabel = label
-        self.uiView.addSubview(label)
+        self.addSubview(label)
         
         //// button
-        let width = self.uiView.frame.midX + 100  // self.uiView.frame.size.width / 2
-        let height = self.uiView.frame.midY + 100  // self.uiView.frame.size.height / 2
-        print("[Button] w=\(width), h=\(height)")
-        var printMessageButton: UIButton! = {
-//            let button = UIButton(type: .custom)
+        let width = self.frame.midX + 150 // self.uiView.frame.midX + 100
+        let height = self.frame.midY + 150 // self.uiView.frame.midY + 100
+
+//        print("[Button] w=\(width), h=\(height)")
+//        print("[Button] w=\(self.frame.width), h=\(self.frame.height)")
+//        print("\(self.center.x), \(self.center.y)")
+//        print("\(self.uiView.center.x), \(self.uiView.center.y)")
+        let printMessageButton: UIButton! = {
             let button = UIButton(frame: CGRect(x: width, y: height, width:120, height:40))
+//            let button = UIButton(frame: CGRect(x: self.center.x, y: self.center.y, width:120, height:40))
             button.isUserInteractionEnabled = true
+//            button.center = self.center
             
-            button.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
-            button.addTarget(self, action: #selector(ButtonPrintMessageTouched(_:)), for: .touchUpInside)
-            button.setTitle("Record", for: .normal)
+//            button.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
+//            button.addTarget(self, action: #selector(ButtonPrintMessageTouched(_:)), for: .touchUpInside)
+            button.addTarget(self, action: #selector(ButtonPrintMessageTouched), for: .touchUpInside)
+//            button.setTitle("██", for: .normal)
+            button.setImage(UIImage(named: "Record"), for: .normal)
             return button
         }()
         
         print(printMessageButton)
+        print("[Anchor] centerX=\(self.centerXAnchor), centerY=\(self.centerYAnchor.hashValue)")
+        print("[Anchor] left=\(self.leftAnchor.hashValue), right=\(self.rightAnchor.hashValue)")
+        print("[Anchor] top=\(self.topAnchor.hashValue), bottom=\(self.bottomAnchor.hashValue)")
+        self.recordButton = printMessageButton
         self.addSubview(printMessageButton)
+//        self.addConstraints(addButtonConstraints())
+//        NSLayoutConstraint.activate(addButtonConstraints())
     }
 
     private func configureUIView() {
@@ -109,10 +123,37 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
         self.addSubview(self.uiView)
     }
 
-    @objc private func ButtonPrintMessageTouched(_ sender: Any) {
-//    @objc func ButtonPrintMessageTouched() {
-        self.displayTextLabel.text = "Button <PrintMessage> have been touched"
-        print("Button <PrintMessage> have been touched");
+//    @objc private func ButtonPrintMessageTouched(_ sender: Any) {
+    @IBAction private func ButtonPrintMessageTouched(_ sender: Any, forEvent event: UIEvent) {
+        if self.displayTextLabel.text == "Click to Record" {
+            self.displayTextLabel.text = "Recording..."
+            print("start to record");
+            self.recordButton.backgroundColor = UIColor(red: 192, green: 0, blue: 0, alpha: 1.0)
+            self.recordButton.setTitle("。。。", for: .normal)
+        }
+        else {
+            self.displayTextLabel.text = "Click to Record"
+            print("stop recording");
+//            self.recordButton.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
+//            self.recordButton.setTitle("██", for: .normal)
+            self.recordButton.setImage(UIImage(named: "Record"), for: .normal)
+        }
     }
 
+    private func endRecording(_ sender: Any) {
+        self.displayTextLabel.text = "Click to Record"
+        self.recordButton.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
+        self.recordButton.setTitle("Click to Record", for: .normal)
+    }
+    
+//    private func addButtonConstraints() -> [NSLayoutConstraint] {
+//        let centerX = NSLayoutConstraint.init(item: self.recordButton, attribute: NSLayoutConstraint.Attribute.centerX, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.uiView, attribute: NSLayoutConstraint.Attribute.centerX, multiplier: 1, constant: 0)
+//
+//        let centerY = NSLayoutConstraint.init(item: self.recordButton, attribute: NSLayoutConstraint.Attribute.centerY, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.uiView, attribute: NSLayoutConstraint.Attribute.centerY, multiplier: 1, constant: 0)
+//
+//        centerX.isActive = true
+//        centerY.isActive = true
+//        print("[Constraint] centerX=\(NSLayoutConstraint.Attribute.centerX.rawValue), centerY=\(NSLayoutConstraint.Attribute.centerY.rawValue)")
+//        return [centerX, centerY]
+//    }
 }
