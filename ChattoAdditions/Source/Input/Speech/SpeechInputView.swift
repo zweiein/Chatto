@@ -98,11 +98,11 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
 //            let button = UIButton(frame: CGRect(x: self.center.x, y: self.center.y, width:120, height:40))
             button.isUserInteractionEnabled = true
 //            button.center = self.center
-            button.setImage(UIImage(named: "record-button"), for: UIControl.State.normal)
-//            button.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
+//            button.setImage(UIImage(named: "record-button"), for: UIControl.State.normal)
+            button.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
 //            button.addTarget(self, action: #selector(ButtonPrintMessageTouched(_:)), for: .touchUpInside)
             button.addTarget(self, action: #selector(ButtonPrintMessageTouched), for: .touchUpInside)
-//            button.setTitle("██", for: .normal)
+            button.setTitle("██", for: .normal)
             
 //            let buttonBackgroundImage = UIImage(named: "Record")
 //            let buttonBackgroundImageView = UIImageView(image: buttonBackgroundImage)
@@ -139,9 +139,9 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
         else {
             self.displayTextLabel.text = "Click to Record"
             print("stop recording");
-//            self.recordButton.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
-//            self.recordButton.setTitle("██", for: .normal)
-            self.recordButton.setImage(UIImage(named: "record-button"), for: .normal)
+            self.recordButton.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
+            self.recordButton.setTitle("██", for: .normal)
+//            self.recordButton.setImage(UIImage(named: "record-button"), for: .normal)
         }
     }
 
