@@ -45,6 +45,7 @@ protocol SpeechInputViewDelegate: class {
 
 class SpeechInputView: UIView, SpeechInputViewProtocol {
     fileprivate var uiView: UIView!
+    var speechConfigs: SpeechOptions!
     @IBOutlet weak var displayTextLabel: UILabel!
     @IBOutlet weak var recordButton: UIButton!
 
@@ -72,6 +73,7 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
     // }
 
     private func commonInit() {
+        self.speechConfigs = SpeechOptions()
         self.configureUIView()
         print("initialize SpeechInputView.commonInit()")
         
@@ -135,6 +137,8 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
             print("start to record");
             self.recordButton.backgroundColor = UIColor(red: 192, green: 0, blue: 0, alpha: 1.0)
             self.recordButton.setTitle("。。。", for: .normal)
+            
+            self.speechConfigs.printMembers()
         }
         else {
             self.displayTextLabel.text = "Click to Record"
