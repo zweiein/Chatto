@@ -1652,7 +1652,7 @@ open class WebSocket: NSObject {
     fileprivate var opened: Bool
     open override var hashValue: Int { return id }
 
-    public convenience init(_ msg: String, id: Int){
+    public print_msg(){
         print("hi, i am in class WebSocket")
     }
 
