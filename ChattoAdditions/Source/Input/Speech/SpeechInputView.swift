@@ -26,6 +26,7 @@ import UIKit
 import Photos
 import Chatto
 import AVFoundation
+import SwiftWebSocket
 
 // public struct PhotosInputViewAppearance {
 //     public var liveCameraCellAppearence: LiveCameraCellAppearance
