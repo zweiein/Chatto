@@ -26,7 +26,6 @@ import UIKit
 import Photos
 import Chatto
 import AVFoundation
-import SwiftWebSocket
 
 // public struct PhotosInputViewAppearance {
 //     public var liveCameraCellAppearence: LiveCameraCellAppearance
@@ -47,6 +46,7 @@ protocol SpeechInputViewDelegate: class {
 class SpeechInputView: UIView, SpeechInputViewProtocol {
     fileprivate var uiView: UIView!
     var speechConfigs: SpeechOptions!
+    var websocket: WebSocket!
     @IBOutlet weak var displayTextLabel: UILabel!
     @IBOutlet weak var recordButton: UIButton!
 
@@ -75,6 +75,7 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
 
     private func commonInit() {
         self.speechConfigs = SpeechOptions()
+        self.websocket = WebSocket()
         self.configureUIView()
         print("initialize SpeechInputView.commonInit()")
         
