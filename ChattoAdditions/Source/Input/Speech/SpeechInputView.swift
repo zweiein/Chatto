@@ -75,7 +75,7 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
 
     private func commonInit() {
         self.speechConfigs = SpeechOptions()
-        self.websocket = WebSocket()
+        self.websocket = WebSocket("Print", 1)
         self.configureUIView()
         print("initialize SpeechInputView.commonInit()")
         
