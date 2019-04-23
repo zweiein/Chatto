@@ -25,18 +25,20 @@
 import UIKit
 import Chatto
 
-struct SpeechOptions {
+open class SpeechOptions {
     var domain: String
     var serverURL: String
     var textAdaptDomain: String
     var enableTTS: Bool
     var enableVAD: Bool
     var nBest: Int
-    var userDefineDict: [String:String]?
+    var userDefineDict: [String: Any]?
+    var paramDict: [String: Any]?
     var appId: String
     var userId: String
     var words:[String]?
     var microphoneAutoStop: Bool
+    var defaultJsonString: String?
     
     init(serverURL: String, domain: String, textAdaptDomain: String, enableTTS: Bool, enableVAD: Bool, nBest: Int, appId: String, userId: String, microphoneAutoStop: Bool){
         self.domain = domain
@@ -48,6 +50,19 @@ struct SpeechOptions {
         self.appId = appId
         self.userId = userId
         self.microphoneAutoStop = microphoneAutoStop
+        
+        self.paramDict = Dictionary<String, Any>()
+        self.paramDict!["domain"] = self.domain
+        self.paramDict!["vad-enable"] = self.enableVAD
+        self.paramDict!["nbest"] = self.nBest
+        
+        self.userDefineDict = Dictionary<String, Any>()
+        self.userDefineDict!["app-id"] = self.appId
+        self.userDefineDict!["user-id"] = self.userId
+        
+        self.paramDict!["user-define"] = self.userDefineDict
+        
+        self.defaultJsonString = "{\"domain\":\"google\",\"user-define\":{\"user-id\":\"guest2\",\"app-id\":\"iOS-Chatbot2\"},\"vad-enable\":true,\"nbest\":1}"
     }
     
     init(){
@@ -60,39 +75,18 @@ struct SpeechOptions {
         self.appId = "iOS-Chatbot"
         self.userId = "guest"
         self.microphoneAutoStop = false
-    }
-    
-//    init(serverURL: String, domain: String, textAdaptDomain: String?){
-//        self.serverURL = serverURL
-//        self.domain = domain
-//        self.textAdaptDomain = textAdaptDomain
-//    }
-//
-//    init(serverURL: String, domain: String, appId: String?, userId: String?, textAdaptDomain: String?){
-//        self.serverURL = serverURL
-//        self.domain = domain
-//        self.appId = appId
-//        self.userId = userId
-//        self.textAdaptDomain = textAdaptDomain
-//    }
-//
-//    init(serverURL: String, domain: String){
-//        self.init(serverURL: serverURL, domain: domain, textAdaptDomain: nil)
-//    }
-    
-    mutating func addUserDefine(entry: [String:String]) -> Bool {
-        var bSucc = false
-        if nil == self.userDefineDict {
-            self.userDefineDict = [String:String]()
-        }
-        if nil != self.userDefineDict {
-            for e in entry {
-                self.userDefineDict!.updateValue(e.value, forKey: e.key)
-            }
-            bSucc = true
-        }
         
-        return bSucc
+        self.paramDict = Dictionary<String, Any>()
+        self.paramDict!["domain"] = self.domain
+        self.paramDict!["vad-enable"] = self.enableVAD
+        self.paramDict!["nbest"] = self.nBest
+        
+        self.userDefineDict = Dictionary<String, Any>()
+        self.userDefineDict!["app-id"] = self.appId
+        self.userDefineDict!["user-id"] = self.userId
+        
+        self.paramDict!["user-define"] = self.userDefineDict
+        self.defaultJsonString = "{\"domain\":\"google\",\"user-define\":{\"user-id\":\"guest2\",\"app-id\":\"iOS-Chatbot2\"},\"vad-enable\":true,\"nbest\":1}"
     }
     
     func printMembers() {
@@ -105,64 +99,18 @@ struct SpeechOptions {
         print("\t+ nBest: \(self.nBest)")
         print("\t+ appId: \(self.appId)")
         print("\t+ userId: \(self.userId)")
-        print("\t+ userDefineDict: \(self.userDefineDict)")
+        print("\t+ userDefineDict: \(self.userDefineDict!)")
         print("\t+ microphoneAutoStop: \(self.microphoneAutoStop)")
         print("\t+ words: \(self.words)")
+        print("==============\n\t+ params: \(self.paramDict!)")
     }
     
-//    func composeOptionsToJson() -> String? {
-//        var strParamJson: String? = nil
-//
-//        let whatDomain = astrASRDomains[pvDomain.selectedRow(inComponent: DOMAINTYPE.ASRDOMAIN.rawValue)]
-//        let whatTextAdaptDomain = astrTextAdaptDomains[pvDomain.selectedRow(inComponent: DOMAINTYPE.TEXTADAPTDOMAIN.rawValue)]
-//
-//        var param = parameters_t(domain: whatDomain)
-//        param.textadaptdomain = whatTextAdaptDomain.isEmpty ? nil:whatTextAdaptDomain
-//
-//        var userdefine = [String: String]()
-//        if let strAppID = tfAppID.text, !strAppID.isEmpty  {
-//            let strAppIDTrim = strAppID.trimmingCharacters(in: .whitespacesAndNewlines)
-//            if !strAppIDTrim.isEmpty {
-//                userdefine[Constants.APPID] = strAppIDTrim
-//            }
-//        }
-//        if let strUserID = tfUserID.text, !strUserID.isEmpty {
-//            let strUserIDTrim = strUserID.trimmingCharacters(in: .whitespacesAndNewlines)
-//            if !strUserIDTrim.isEmpty {
-//                userdefine[Constants.USERID] = strUserIDTrim
-//            }
-//        }
-//        if let strNBest = tfNBest.text, !strNBest.isEmpty {
-//            let strNBestTrim = strNBest.trimmingCharacters(in: .whitespacesAndNewlines)
-//            if !strNBestTrim.isEmpty {
-//                if let nBest = Int(strNBestTrim) {
-//                    param.nbest = nBest;
-//                }else {
-//                    print("NBest \(strNBestTrim) failed to convert to Int")
-//                }
-//            }
-//        }
-//
-//        if userdefine.count > 0 {
-//            _ = param.addUDF(entry: userdefine)
-//        }
-//
-//        // compose parameter json string
-//        let encoder = JSONEncoder()
-//        //encoder.outputFormatting = .prettyPrinted
-//
-//        do {
-//            let data = try encoder.encode(param)
-//            strParamJson = String(data: data, encoding: .utf8)?.replacingOccurrences(of: "\\/", with: "/")
-//            //            if let str = strParamJson {
-//            //                print("parameter JSON:\n\(str)\n")
-//            //            }
-//        }catch {
-//            print("Exception: JSONSerialization.encorder(): \(error)")
-//        }
-//
-//        return strParamJson
-//    }
+    func generateJson() -> String? {
+        let jsonData = try! JSONSerialization.data(withJSONObject: self.paramDict ?? self.defaultJsonString!)
+        let jsonString = String(data: jsonData, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))
+        print("\t+ json: \(jsonString!)")
+        return jsonString!
+    }
     
 //    mutating func addWords(words: [String]) -> Bool {
 //        var bSucc = false

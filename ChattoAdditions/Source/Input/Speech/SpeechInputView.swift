@@ -75,7 +75,8 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
     // }
 
     private func commonInit() {
-        self.speechConfigs = SpeechOptions()
+//        self.speechConfigs = SpeechOptions()
+        self.speechConfigs = SpeechOptions(serverURL: "wss://speech.deltaww.com", domain: "google", textAdaptDomain: "DELTA_Chatbot", enableTTS: true, enableVAD: true, nBest: 1, appId: "iOS-Chatbot2", userId: "guest2", microphoneAutoStop: false)
         // self.websocket = WebSocket()
         // self.websocket.print_msg()
         self.configureUIView()
@@ -95,10 +96,6 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
         let width = self.frame.midX + 150 // self.uiView.frame.midX + 100
         let height = self.frame.midY + 150 // self.uiView.frame.midY + 100
 
-//        print("[Button] w=\(width), h=\(height)")
-//        print("[Button] w=\(self.frame.width), h=\(self.frame.height)")
-//        print("\(self.center.x), \(self.center.y)")
-//        print("\(self.uiView.center.x), \(self.uiView.center.y)")
         let printMessageButton: UIButton! = {
             let button = UIButton(frame: CGRect(x: width, y: height, width:120, height:40))
 //            let button = UIButton(frame: CGRect(x: self.center.x, y: self.center.y, width:120, height:40))
@@ -118,10 +115,10 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
             return button
         }()
         
-        print(printMessageButton)
-        print("[Anchor] centerX=\(self.centerXAnchor), centerY=\(self.centerYAnchor.hashValue)")
-        print("[Anchor] left=\(self.leftAnchor.hashValue), right=\(self.rightAnchor.hashValue)")
-        print("[Anchor] top=\(self.topAnchor.hashValue), bottom=\(self.bottomAnchor.hashValue)")
+//        print(printMessageButton)
+//        print("[Anchor] centerX=\(self.centerXAnchor), centerY=\(self.centerYAnchor.hashValue)")
+//        print("[Anchor] left=\(self.leftAnchor.hashValue), right=\(self.rightAnchor.hashValue)")
+//        print("[Anchor] top=\(self.topAnchor.hashValue), bottom=\(self.bottomAnchor.hashValue)")
         self.recordButton = printMessageButton
         self.addSubview(printMessageButton)
 //        self.addConstraints(addButtonConstraints())
@@ -143,6 +140,7 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
             self.recordButton.setTitle("。。。", for: .normal)
             
             self.speechConfigs.printMembers()
+            print(">> \(String(describing: self.speechConfigs.generateJson()))")
         }
         else {
             self.displayTextLabel.text = "Click to Record"
