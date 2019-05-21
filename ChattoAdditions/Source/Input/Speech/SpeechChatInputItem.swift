@@ -29,12 +29,17 @@ open class SpeechChatInputItem {
     typealias Class = SpeechChatInputItem
     public var speechInputHandler: ((String) -> Void)?
     public weak var presentingController: UIViewController?
+    public weak var speechParameters: SpeechOptions?
 
     let buttonAppearance: TabInputButtonAppearance
-    public init(tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance(), 
+    public init(tabInputButtonAppearance: TabInputButtonAppearance = SpeechChatInputItem.createDefaultButtonAppearance(),
                 presentingController: UIViewController?) {
         self.buttonAppearance = tabInputButtonAppearance
         self.presentingController = presentingController
+    }
+    
+    public func UpdateSpeechOptions(parameters: SpeechOptions) {
+        self.speechParameters = parameters
     }
 
     public static func createDefaultButtonAppearance() -> TabInputButtonAppearance {
@@ -46,24 +51,16 @@ open class SpeechChatInputItem {
         return TabInputButtonAppearance(images: images, size: CGSize(width: 20, height: 20))
     }
 
-    lazy var speechIpuntView: SpeechInputViewProtocol = {
-        let speechInputView = SpeechInputView(presentingController: self.presentingController)
-        // speechInputView.delegate = self
+    lazy var speechInputView: SpeechInputViewProtocol = {
+        let speechInputView = SpeechInputView(presentingController: self.presentingController, speechParameters: self.speechParameters)
         return speechInputView
     }()
 
-    // lazy var speechIpuntView: SpeechInputViewProtocol = {
-    //     let speechInputView = UIView(frame: CGRect)
-    //     return speechInputView
-    // }()
-
-    // lazy var speechIpuntView: SpeechInputViewProtocol = {
-    //     let speechInputView = SpeechInputView()
-    //     speechInputView.delegate = self
-    //     return speechInputView
-    // }()
-
-
+//    lazy var speechInputView: SpeechInputViewProtocol = {
+//        let speechInputView = SpeechInputView(presentingController: self.presentingController)
+//        return speechInputView
+//    }()
+    
     lazy fileprivate var internalTabView: TabInputButton = {
         return TabInputButton.makeInputButton(withAppearance: self.buttonAppearance, accessibilityID: "speech.chat.input.view")
     }()
@@ -86,7 +83,7 @@ extension SpeechChatInputItem: ChatInputItemProtocol {
     }
 
     public var inputView: UIView? {
-        return self.speechIpuntView as? UIView
+        return self.speechInputView as? UIView
     }
 
     public var tabView: UIView {

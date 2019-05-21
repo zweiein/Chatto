@@ -26,10 +26,12 @@ import UIKit
 
 protocol ChatInputBarPresenter: class {
     var chatInputBar: ChatInputBar { get }
+    var recognitionResults: String { get set }
     func onDidBeginEditing()
     func onDidEndEditing()
     func onSendButtonPressed()
     func onDidReceiveFocusOnItem(_ item: ChatInputItemProtocol)
+    func onUpdateInputText(text: String)
 }
 
 @objc
@@ -37,6 +39,7 @@ public class BasicChatInputBarPresenter: NSObject, ChatInputBarPresenter {
     public let chatInputBar: ChatInputBar
     let chatInputItems: [ChatInputItemProtocol]
     let notificationCenter: NotificationCenter
+    public var recognitionResults: String
 
     public init(chatInputBar: ChatInputBar,
                 chatInputItems: [ChatInputItemProtocol],
@@ -46,6 +49,7 @@ public class BasicChatInputBarPresenter: NSObject, ChatInputBarPresenter {
         self.chatInputItems = chatInputItems
         self.chatInputBar.setAppearance(chatInputBarAppearance)
         self.notificationCenter = notificationCenter
+        self.recognitionResults = "你好"
         super.init()
 
         self.chatInputBar.presenter = self
@@ -54,6 +58,10 @@ public class BasicChatInputBarPresenter: NSObject, ChatInputBarPresenter {
         self.notificationCenter.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         self.notificationCenter.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         self.notificationCenter.addObserver(self, selector: #selector(handleOrienationDidChangeNotification), name: UIApplication.didChangeStatusBarOrientationNotification, object: nil)
+        
+//        self.notificationCenter.addObserver(self, selector: #selector(textDidChangeNotification), name: UITextView.textDidChangeNotification, object: nil)
+        
+        self.notificationCenter.addObserver(self, selector: #selector(textDidChangeNotification), name: NSNotification.Name(rawValue: "ChatInputBarTextShouldChangeNotification"), object: nil)
     }
 
     deinit {
@@ -71,6 +79,7 @@ public class BasicChatInputBarPresenter: NSObject, ChatInputBarPresenter {
 
     fileprivate func updateFirstResponderWithInputItem(_ inputItem: ChatInputItemProtocol) {
         let responder = self.chatInputBar.textView!
+
         if let inputView = inputItem.inputView {
             let containerView: InputContainerView = {
                 let containerView = InputContainerView()
@@ -123,6 +132,17 @@ public class BasicChatInputBarPresenter: NSObject, ChatInputBarPresenter {
             }
         }()
     }
+    
+    private func updateTextAsKeyboardTyping(for textView: ExpandableTextView, text: String) {
+        print("[Notf]#Before# textView.text=\(textView.text);", terminator: " ")
+
+        textView.text = {
+           return text
+        }()
+        self.chatInputBar.textViewDidChange(textView) // updateSendButton()
+        print("[Notf]#After# textView.text=\(textView.text);")
+    }
+    
 
     // MARK: Notifications handling
 
@@ -154,6 +174,14 @@ public class BasicChatInputBarPresenter: NSObject, ChatInputBarPresenter {
             self.updateHeight(for: currentInputView)
         }
     }
+    
+    @objc
+    private func textDidChangeNotification(_ notification: Notification) {
+        print("[Notf] <= ... ... ...  \(notification.userInfo)")
+        let newText = notification.userInfo!["result"]
+//        print("                        got >> \(newText)")
+        self.updateTextAsKeyboardTyping(for: self.chatInputBar.textView, text: newText as! String)
+    }
 }
 
 // MARK: ChatInputBarPresenter
@@ -170,6 +198,14 @@ extension BasicChatInputBarPresenter {
             self.focusedItem = self.firstKeyboardInputItem()
         }
     }
+    
+    public func onUpdateInputText(text: String) {
+//        if let focusedItem = self.focusedItem {
+//            self.chatInputBar.inputText = text
+//            print("._.   // \(self.chatInputBar.inputText)")
+//        }
+        self.recognitionResults = text
+    }
 
     func onSendButtonPressed() {
         if let focusedItem = self.focusedItem {
@@ -180,7 +216,7 @@ extension BasicChatInputBarPresenter {
         self.chatInputBar.inputText = ""
     }
 
-    func onDidReceiveFocusOnItem(_ item: ChatInputItemProtocol) {
+    public func onDidReceiveFocusOnItem(_ item: ChatInputItemProtocol) {
         guard item.presentationMode != .none else { return }
         guard item !== self.focusedItem else { return }
 

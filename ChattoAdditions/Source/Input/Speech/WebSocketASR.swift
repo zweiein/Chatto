@@ -46,6 +46,7 @@ class WebSocketASR {
         m_delegate = delegate
     }
     
+    @available(iOS 10.0, *)
     func connect(strBaseURL : String, strParameters : String) -> Void {
         let strURLDir = "client/ws/speech"
         let strContentType = "content-type=audio/x-raw,+layout=(string)interleaved,+rate=(int)16000,+format=(string)S16LE,+channels=(int)1"
@@ -67,7 +68,9 @@ class WebSocketASR {
         print("socket.connect(\(strURL)")
         
         ws.event.open = {
-            print("websocket is connected")
+            print("================================================")
+            print("          websocket is connected")
+            print("================================================")
             
             // start recording only if websocket connection successfully established
             self.m_streamRecord = StreamRecord(inRate: 44100.0, outRate:16000.0, writeDataFunc: self.writeData)
@@ -91,7 +94,10 @@ class WebSocketASR {
                 }
                 self.m_nStatus = .CLOSING
             }
-            print("websocket disconnected code:\(code) reason:\(reason) clean: \(clean)")
+            print("================================================")
+            print("            websocket disconnected ")
+            print("  code:\(code) reason:\(reason) clean: \(clean)")
+            print("================================================")
             self.m_delegate?.OnWSASRClosed(self)
         }
         ws.event.error = { error in
@@ -156,6 +162,7 @@ class WebSocketASR {
         return bOK
     }
     
+    @available(iOS 10.0, *)
     func play() {
         if let recorder = m_streamRecord {
             recorder.play()

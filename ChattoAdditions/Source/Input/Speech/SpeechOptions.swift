@@ -26,21 +26,21 @@ import UIKit
 import Chatto
 
 open class SpeechOptions {
-    var domain: String
-    var serverURL: String
-    var textAdaptDomain: String
-    var enableTTS: Bool
-    var enableVAD: Bool
-    var nBest: Int
-    var userDefineDict: [String: Any]?
-    var paramDict: [String: Any]?
-    var appId: String
-    var userId: String
-    var words:[String]?
-    var microphoneAutoStop: Bool
-    var defaultJsonString: String?
+    public var domain: String
+    public var serverURL: String
+    public var textAdaptDomain: String
+    public var enableTTS: Bool
+    public var enableVAD: Bool
+    public var nBest: Int
+    public var userDefineDict: [String: Any]?
+    public var paramDict: [String: Any]?
+    public var appId: String
+    public var userId: String
+    public var words:[String]?
+    public var microphoneAutoStop: Bool
+    public var defaultJsonString: String?
     
-    init(serverURL: String, domain: String, textAdaptDomain: String, enableTTS: Bool, enableVAD: Bool, nBest: Int, appId: String, userId: String, microphoneAutoStop: Bool){
+    public init(serverURL: String, domain: String, textAdaptDomain: String, enableTTS: Bool, enableVAD: Bool, nBest: Int, appId: String, userId: String, microphoneAutoStop: Bool){
         self.domain = domain
         self.serverURL = serverURL
         self.textAdaptDomain = textAdaptDomain
@@ -53,6 +53,7 @@ open class SpeechOptions {
         
         self.paramDict = Dictionary<String, Any>()
         self.paramDict!["domain"] = self.domain
+        self.paramDict!["text-adapt-domain"] = self.textAdaptDomain
         self.paramDict!["vad-enable"] = self.enableVAD
         self.paramDict!["nbest"] = self.nBest
         
@@ -62,22 +63,23 @@ open class SpeechOptions {
         
         self.paramDict!["user-define"] = self.userDefineDict
         
-        self.defaultJsonString = "{\"domain\":\"google\",\"user-define\":{\"user-id\":\"guest2\",\"app-id\":\"iOS-Chatbot2\"},\"vad-enable\":true,\"nbest\":1}"
+        self.defaultJsonString = "{\"domain\":\"google\",\"text-adapt-domain\":\"DELTA_Chatbot\",\"user-define\":{\"user-id\":\"guest2\",\"app-id\":\"iOS-Chatbot2\"},\"vad-enable\":true,\"nbest\":2}"
     }
     
-    init(){
+    public init(){
         self.domain = "google"
         self.serverURL = "wss://speech.deltaww.com"
         self.textAdaptDomain = "DELTA_Chatbot"
         self.enableTTS = false
         self.enableVAD = true
-        self.nBest = 1
+        self.nBest = 2
         self.appId = "iOS-Chatbot"
         self.userId = "guest"
         self.microphoneAutoStop = false
         
         self.paramDict = Dictionary<String, Any>()
         self.paramDict!["domain"] = self.domain
+        self.paramDict!["text-adapt-domain"] = self.textAdaptDomain
         self.paramDict!["vad-enable"] = self.enableVAD
         self.paramDict!["nbest"] = self.nBest
         
@@ -86,10 +88,10 @@ open class SpeechOptions {
         self.userDefineDict!["user-id"] = self.userId
         
         self.paramDict!["user-define"] = self.userDefineDict
-        self.defaultJsonString = "{\"domain\":\"google\",\"user-define\":{\"user-id\":\"guest2\",\"app-id\":\"iOS-Chatbot2\"},\"vad-enable\":true,\"nbest\":1}"
+        self.defaultJsonString = "{\"domain\":\"google\",\"text-adapt-domain\":\"DELTA_Chatbot\",\"user-define\":{\"user-id\":\"guest2\",\"app-id\":\"iOS-Chatbot2\"},\"vad-enable\":true,\"nbest\":2}"
     }
     
-    func printMembers() {
+    public func printMembers() {
         print("[S]SpeechOptions -> printMembers()")
         print("\t+ domain: \(self.domain)")
         print("\t+ serverURL: \(self.serverURL)")
@@ -105,29 +107,23 @@ open class SpeechOptions {
         print("==============\n\t+ params: \(self.paramDict!)")
     }
     
-    func generateJson() -> String? {
-        let jsonData = try! JSONSerialization.data(withJSONObject: self.paramDict ?? self.defaultJsonString!)
-        let jsonString = String(data: jsonData, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))
-        print("\t+ json: \(jsonString!)")
-        return jsonString!
+    public func updateParamDict() {
+        self.paramDict!["domain"] = self.domain
+        self.paramDict!["text-adapt-domain"] = self.textAdaptDomain
+        self.paramDict!["vad-enable"] = self.enableVAD
+        self.paramDict!["nbest"] = self.nBest
+        
+        self.userDefineDict!["app-id"] = self.appId
+        self.userDefineDict!["user-id"] = self.userId
+        self.paramDict!["user-define"] = self.userDefineDict
     }
     
-//    mutating func addWords(words: [String]) -> Bool {
-//        var bSucc = false
-//        if nil == self.words {
-//            self.words = [String]()
-//        }
-//        if nil != self.words {
-//            for w in words {
-//                self.words!.append(w)
-//            }
-//            bSucc = true
-//        }
-//
-//        return bSucc
-//    }
-//
-//    private enum CodingKeys : String, CodingKey {
-//        case domain, vadenable = "vad-enable", textadaptdomain = "text-adapt-domain", userdefine = "user-define", words, nbest
-//    }
+    public func generateJson() -> String? {
+        let jsonData = try! JSONSerialization.data(withJSONObject: self.paramDict ?? self.defaultJsonString!)
+        let jsonString = String(data: jsonData, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))
+        print("-----------------------------------------------------------")
+        print("\t+ JSON was: \(jsonString!)")
+        print("-----------------------------------------------------------")
+        return jsonString!
+    }
 }

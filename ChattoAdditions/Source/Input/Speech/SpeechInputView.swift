@@ -27,60 +27,78 @@ import Photos
 import Chatto
 import AVFoundation
 import SwiftWebSocket
-
-// public struct PhotosInputViewAppearance {
-//     public var liveCameraCellAppearence: LiveCameraCellAppearance
-//     public init(liveCameraCellAppearence: LiveCameraCellAppearance) {
-//         self.liveCameraCellAppearence = liveCameraCellAppearence
-//     }
-// }
+import AudioKit
 
 protocol SpeechInputViewProtocol {
-    var delegate: SpeechInputViewDelegate? { get set }
     var presentingController: UIViewController? { get }
+//    func getTranscription() -> String
 }
 
-protocol SpeechInputViewDelegate: class {
-    func inputView(_ inputView: SpeechInputViewProtocol, didSelectImage image: UIImage)
-}
-
-class SpeechInputView: UIView, SpeechInputViewProtocol {
+class SpeechInputView: UIView, SpeechInputViewProtocol, WebSocketASRDelegate {
     fileprivate var uiView: UIView!
-    var speechConfigs: SpeechOptions!
-    // var websocket: WebSocket!
+    var speechConfigs: SpeechOptions?
     @IBOutlet weak var displayTextLabel: UILabel!
     @IBOutlet weak var recordButton: UIButton!
-
-    weak var delegate: SpeechInputViewDelegate?
+    public var transcript: String!
+    var hasNewSpeechOptions: Bool = false
+    var notificationCenter: NotificationCenter = NotificationCenter.default
+    
+    enum RecordingState: Int { case IDLE=0, WAIT_CONNECTED, RECORDING, WAIT_RECORDING_FINISH }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.commonInit()
+        if #available(iOS 10.0, *) {
+            self.commonInit()
+        } else {
+            // Fallback on earlier versions
+            print("Please use iOS 10.0 or upper")
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        self.commonInit()
+        if #available(iOS 10.0, *) {
+            self.commonInit()
+        } else {
+            // Fallback on earlier versions
+            print("Please use iOS 10.0 or upper")
+        }
     }
 
     weak var presentingController: UIViewController?
     init(presentingController: UIViewController?) {
         super.init(frame: CGRect.zero)
         self.presentingController = presentingController
-        self.commonInit()
+        if #available(iOS 10.0, *) {
+            self.commonInit()
+        } else {
+            // Fallback on earlier versions
+            print("Please use iOS 10.0 or upper")
+        }
+    }
+    
+    init(presentingController: UIViewController?, speechParameters: SpeechOptions?) {
+        super.init(frame: CGRect.zero)
+        self.presentingController = presentingController
+        self.speechConfigs = speechParameters
+        if #available(iOS 10.0, *) {
+            self.commonInit()
+        } else {
+            // Fallback on earlier versions
+            print("Please use iOS 10.0 or upper")
+        }
     }
 
-    // deinit {
-    //     self.uiView.dataSource = nil
-    //     self.uiView.delegate = nil
-    // }
 
+    @available(iOS 10.0, *)
     private func commonInit() {
-//        self.speechConfigs = SpeechOptions()
-        self.speechConfigs = SpeechOptions(serverURL: "wss://speech.deltaww.com", domain: "google", textAdaptDomain: "DELTA_Chatbot", enableTTS: true, enableVAD: true, nBest: 1, appId: "iOS-Chatbot2", userId: "guest2", microphoneAutoStop: false)
-        // self.websocket = WebSocket()
-        // self.websocket.print_msg()
+        print("Init SpeechInputView()")
+        self.transcript = ""
+    
+        print("  + [CHECK] speechConfigs: \(self.speechConfigs)")
+//        self.speechConfigs = SpeechOptions(serverURL: "wss://speech.deltaww.com", domain: "google", textAdaptDomain: "DELTA_Chatbot", enableTTS: true, enableVAD: true, nBest: 2, appId: "iOS-Chatbot2", userId: "guest123", microphoneAutoStop: false)
+        
         self.configureUIView()
-        print("initialize SpeechInputView.commonInit()")
         
         //// label
         let label = UILabel(frame: .zero)
@@ -96,33 +114,29 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
         let width = self.frame.midX + 150 // self.uiView.frame.midX + 100
         let height = self.frame.midY + 150 // self.uiView.frame.midY + 100
 
-        let printMessageButton: UIButton! = {
-            let button = UIButton(frame: CGRect(x: width, y: height, width:120, height:40))
-//            let button = UIButton(frame: CGRect(x: self.center.x, y: self.center.y, width:120, height:40))
+        let RecordButton: UIButton! = {
+            let button = UIButton(frame: CGRect(x: width, y: height, width:155, height:155))
             button.isUserInteractionEnabled = true
-//            button.center = self.center
-//            button.setImage(UIImage(named: "record-button"), for: UIControl.State.normal)
-            button.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
-//            button.addTarget(self, action: #selector(ButtonPrintMessageTouched(_:)), for: .touchUpInside)
+            button.setImage(UIImage(named: "record-button"), for: .normal)
+            // 要設定這個，才能用程式手動加constraint
+            // https://stackoverflow.com/questions/36664850/programmatically-added-constraint-not-working
+            // set translatesAutoresizingMaskIntoConstraints = false to any view you are settings constraints programatically.
+            button.translatesAutoresizingMaskIntoConstraints = false
             button.addTarget(self, action: #selector(ButtonPrintMessageTouched), for: .touchUpInside)
-            button.setTitle("██", for: .normal)
             
-//            let buttonBackgroundImage = UIImage(named: "Record")
-//            let buttonBackgroundImageView = UIImageView(image: buttonBackgroundImage)
-//            buttonBackgroundImageView.frame = CGRect(x: width, y: height, width: 40, height: 40)
-//            button.addSubview(buttonBackgroundImageView)
+            // Constraints for Button
+            let horizontalConstraint = NSLayoutConstraint(item: button, attribute: NSLayoutConstraint.Attribute.centerX, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.centerX, multiplier: 1, constant: 0)
+            let verticalConstraint = NSLayoutConstraint(item: button, attribute: NSLayoutConstraint.Attribute.centerY, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.centerY, multiplier: 1, constant: 0)
+            let widthConstraint = NSLayoutConstraint(item: button, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 100)
+            let heightConstraint = NSLayoutConstraint(item: button, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 100)
+            
+            self.addConstraints([horizontalConstraint, verticalConstraint, widthConstraint, heightConstraint])
             
             return button
         }()
         
-//        print(printMessageButton)
-//        print("[Anchor] centerX=\(self.centerXAnchor), centerY=\(self.centerYAnchor.hashValue)")
-//        print("[Anchor] left=\(self.leftAnchor.hashValue), right=\(self.rightAnchor.hashValue)")
-//        print("[Anchor] top=\(self.topAnchor.hashValue), bottom=\(self.bottomAnchor.hashValue)")
-        self.recordButton = printMessageButton
-        self.addSubview(printMessageButton)
-//        self.addConstraints(addButtonConstraints())
-//        NSLayoutConstraint.activate(addButtonConstraints())
+        self.recordButton = RecordButton
+        self.addSubview(RecordButton)
     }
 
     private func configureUIView() {
@@ -131,40 +145,172 @@ class SpeechInputView: UIView, SpeechInputViewProtocol {
         self.addSubview(self.uiView)
     }
 
-//    @objc private func ButtonPrintMessageTouched(_ sender: Any) {
-    @IBAction private func ButtonPrintMessageTouched(_ sender: Any, forEvent event: UIEvent) {
-        if self.displayTextLabel.text == "Click to Record" {
-            self.displayTextLabel.text = "Recording..."
-            print("start to record");
-            self.recordButton.backgroundColor = UIColor(red: 192, green: 0, blue: 0, alpha: 1.0)
-            self.recordButton.setTitle("。。。", for: .normal)
-            
-            self.speechConfigs.printMembers()
-            print(">> \(String(describing: self.speechConfigs.generateJson()))")
-        }
-        else {
+    private func configRecordingUI(_ isRecording: RecordingState){
+        switch isRecording {
+        case .IDLE:
+            self.recordButton.setImage(UIImage(named: "record-button"), for: .normal)
             self.displayTextLabel.text = "Click to Record"
-            print("stop recording");
-            self.recordButton.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
-            self.recordButton.setTitle("██", for: .normal)
-//            self.recordButton.setImage(UIImage(named: "record-button"), for: .normal)
-        }
-    }
+            self.displayTextLabel.textColor = .black
 
-    private func endRecording(_ sender: Any) {
-        self.displayTextLabel.text = "Click to Record"
-        self.recordButton.backgroundColor = UIColor(red: 0.8, green: 0.6, blue: 0.2, alpha: 1.0)
-        self.recordButton.setTitle("Click to Record", for: .normal)
+        case .RECORDING:
+            self.recordButton.setImage(UIImage(named: "stop-button"), for: .normal)
+            self.displayTextLabel.text = "Recording..."
+            self.displayTextLabel.textColor = .red
+
+        case .WAIT_CONNECTED:
+            self.recordButton.setImage(UIImage(named: "record-button"), for: .normal)
+            self.displayTextLabel.text = "Connecting to Speech Server..."
+            self.displayTextLabel.textColor = .black
+
+        case .WAIT_RECORDING_FINISH:
+            self.recordButton.setImage(UIImage(named: "record-button"), for: .normal)
+            self.displayTextLabel.text = "Click to Record"
+            self.displayTextLabel.textColor = .black
+
+        }
     }
     
-//    private func addButtonConstraints() -> [NSLayoutConstraint] {
-//        let centerX = NSLayoutConstraint.init(item: self.recordButton, attribute: NSLayoutConstraint.Attribute.centerX, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.uiView, attribute: NSLayoutConstraint.Attribute.centerX, multiplier: 1, constant: 0)
-//
-//        let centerY = NSLayoutConstraint.init(item: self.recordButton, attribute: NSLayoutConstraint.Attribute.centerY, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.uiView, attribute: NSLayoutConstraint.Attribute.centerY, multiplier: 1, constant: 0)
-//
-//        centerX.isActive = true
-//        centerY.isActive = true
-//        print("[Constraint] centerX=\(NSLayoutConstraint.Attribute.centerX.rawValue), centerY=\(NSLayoutConstraint.Attribute.centerY.rawValue)")
-//        return [centerX, centerY]
+//    func playSound(file:String, ext:String) -> Void {
+//        let url = Bundle.main.url(forResource: file, withExtension: ext)!
+//        do {
+//            let player = try AVAudioPlayer(contentsOf: url)
+//            player.prepareToPlay()
+//            player.play()
+//        } catch let error {
+//            print(error.localizedDescription)
+//        }
 //    }
+    
+    @available(iOS 10.0, *)
+    @IBAction private func ButtonPrintMessageTouched(_ sender: Any, forEvent event: UIEvent) {
+        if self.displayTextLabel.text == "Click to Record" {
+            configRecordingUI(.RECORDING)
+//            self.speechConfigs.printMembers()
+//            print(">> \(String(describing: self.speechConfigs.generateJson()))")
+            startRecording()
+        }
+        else {
+            configRecordingUI(.WAIT_RECORDING_FINISH)
+//            self.recordButton.setImage(UIImage(named: "record-button"), for: .normal)
+            stopRecording()
+        }
+    }
+    
+    @available(iOS 10.0, *)
+    func startRecording() {
+        // dicconnect previous connection if not yet disconnected from server
+        if let socket = m_ws {
+            if socket.status != .CLOSING && socket.status != .CLOSED {
+                print("force socket.disconnect() for new recording request")
+                socket.close()
+            }
+            m_ws = nil
+        }
+        
+        // keep old text and append recognized text after it
+        m_strOld = self.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        m_ws = WebSocketASR(delegate: self)
+        // connect speech server, and start recording once websocket connected
+        if let socket = m_ws {
+            // create a sound ID, in this case its the tweet sound.
+            // check system sound ID here: http://iphonedevwiki.net/index.php/AudioServices
+            let systemSoundID: SystemSoundID = 1110
+            AudioServicesPlaySystemSound(systemSoundID)
+            
+            socket.connect(strBaseURL: self.speechConfigs!.serverURL, strParameters: self.speechConfigs!.generateJson()!)
+        }
+    }
+    
+    func stopRecording() {
+        // stop recording and wait connection close by server
+        if let wsASR = m_ws {
+            _ = wsASR.stopRecording()
+        }
+
+        // create a sound ID, in this case its the tweet sound.
+        // check system sound ID here: http://iphonedevwiki.net/index.php/AudioServices
+        let systemSoundID: SystemSoundID = 1111
+        AudioServicesPlaySystemSound(systemSoundID)
+    }
+    
+
+    private var m_strOld: String = ""
+    private var m_ws : WebSocketASR? = nil
+    private var m_timer:Timer!
+    private var m_bRecvResultBeforeTimeout: Bool = false
+    
+    // timeer handler for auto Microphone
+    @objc func timeOut() {
+        m_timer.invalidate() // stop timer
+        print("> time out...")
+        // tap stop recording button if not yet got any result from server before timeout
+        if let recorder = m_ws, recorder.isRecording && !m_bRecvResultBeforeTimeout {
+            stopRecording()
+        }
+    }
+    
+    // MARK: WebSocketASR Delegate Functions
+    
+    func OnWSASRConnected(_ wsASR: WebSocketASR) {
+        print("> on Socket conneted")
+        configRecordingUI(.RECORDING)
+        
+        // check if user had update new speech options
+        self.notificationCenter.addObserver(self, selector: #selector(UpdateSpeechOptions), name: NSNotification.Name(rawValue: "SpeechOptionDidChangeNotification"), object: nil)
+        
+        // reset previous transcriptions
+        self.transcript = ""
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChatInputBarTextShouldChangeNotification"), object: nil, userInfo: ["result": self.transcript])
+        
+        if wsASR.status == .CONNECTED {
+            configRecordingUI(.RECORDING)
+            self.m_bRecvResultBeforeTimeout = false
+            // fire up timer, call timeOut() once 10 second reached
+            // start timer in case of auto microphone
+            self.m_timer = Timer.scheduledTimer(timeInterval: 10, target: self, selector: #selector(self.timeOut), userInfo: nil, repeats: false)
+        }
+        else {
+            configRecordingUI(.IDLE)
+        }
+    }
+    
+    func OnWSASRResultCallback(_ wsASR: WebSocketASR, nbest aStrTopN: [String], _ isFinal: Bool) {
+        if aStrTopN.count > 0 {
+            print("ASR::TopN => \(aStrTopN)")
+            self.transcript = aStrTopN[0]
+        }
+        else {
+            print("ASR::TopN => Empty")
+        }
+        
+        if isFinal {
+            print("~final~")
+            if let timer = self.m_timer {
+                timer.invalidate()
+            }
+            if let recorder = self.m_ws, recorder.isRecording {
+                stopRecording()
+            }
+            configRecordingUI(.WAIT_RECORDING_FINISH)
+        }
+        
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChatInputBarTextShouldChangeNotification"), object: nil, userInfo: ["result": self.transcript])
+    }
+    
+    func OnWSASRClosed(_ wsASR: WebSocketASR) {
+        configRecordingUI(.IDLE)
+        print("> Socket closed! @OnWSASRClosed()")
+    }
+    
+    func OnWSASRError(_ wsASR: WebSocketASR) {
+        configRecordingUI(.IDLE)
+        print("> Socket has errors! @OnWSASRError()")
+    }
+    
+    // update options when receive
+    @objc func UpdateSpeechOptions(_ notification: Notification) {
+        print("[Notf] <= ... ... ...  \(notification.userInfo!.keys) ... \(notification.userInfo!["options"])")
+        self.speechConfigs = notification.userInfo!["options"] as! SpeechOptions
+    }
 }

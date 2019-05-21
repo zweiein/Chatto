@@ -16,6 +16,7 @@ class StreamRecord {
         }
     }
 
+    @available(iOS 10.0, *)
     func start() -> Bool {
         var bOK = false
         m_serialQueue.sync {
@@ -23,7 +24,8 @@ class StreamRecord {
                 let audioSession = AVAudioSession.sharedInstance()
                 do{
                     //try! audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord, with:AVAudioSessionCategoryOptions.defaultToSpeaker)
-                    try! audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord, with:AVAudioSessionCategoryOptions.allowBluetooth)
+                    try! audioSession.setCategory(AVAudioSession.Category.playAndRecord, mode: .default, options: .allowBluetooth)
+//                    try! audioSession.setCategory(AVAudioSession.Category.playAndRecord, with:AVAudioSession.CategoryOptions.allowBluetooth)
 
                     // crash on iPad
                     //try! audioSession.setCategory(AVAudioSessionCategoryRecord, with:AVAudioSessionCategoryOptions.allowBluetooth)
@@ -38,6 +40,7 @@ class StreamRecord {
                         bOK = self.m_bRecording
                     })
                 } catch {
+                    
                     print("audioSession.setActive(true): \(error)")
                 }
             }
@@ -101,6 +104,13 @@ class StreamRecord {
             {(buffer: AVAudioPCMBuffer!, time: AVAudioTime!) -> Void in
 
             let blockdata = buffer.toSampleData(reSampler: self.m_reSampler)
+                
+//            print("_._._._._._._._._._._._._._._._._._._._._._._")
+//            print(blockdata[0])
+//                print(blockdata[1])
+//            print("frameLength: \(buffer.frameLength), frameCapacity:\(buffer.frameCapacity)")
+//            print("_._._._._._._._._._._._._._._._._._._._._._._")
+                
             // send recorded audio to server by websocket
             self.m_writeDataFunc(blockdata)
 
@@ -248,13 +258,15 @@ class StreamRecord {
         DispatchQueue.main.asyncAfter(deadline: when, execute: closure)
     }
 
+    @available(iOS 10.0, *)
     func play(){
         if let pcmBuffer = m_pcmBuffer {
             m_serialQueue.sync {
                 let audioSession = AVAudioSession.sharedInstance()
                 do{
                     //try! audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord, with:AVAudioSessionCategoryOptions.defaultToSpeaker)
-                    try! audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord, with:AVAudioSessionCategoryOptions.allowBluetooth)
+                    try! audioSession.setCategory(AVAudioSession.Category.playAndRecord, mode: .default, options: .allowBluetooth)
+//                    try! audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord, with:AVAudioSessionCategoryOptions.allowBluetooth)
                     try audioSession.setActive(true)
                     
                 } catch {

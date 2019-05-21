@@ -47,7 +47,7 @@ open class ChatInputBar: ReusableXibView {
     }
 
     @IBOutlet weak var scrollView: HorizontalStackScrollView!
-    @IBOutlet weak var textView: ExpandableTextView!
+    @IBOutlet public weak var textView: ExpandableTextView!
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var topBorderHeightConstraint: NSLayoutConstraint!
 
@@ -157,8 +157,15 @@ open class ChatInputBar: ReusableXibView {
         set {
             self.textView.text = newValue
             self.updateSendButton()
+            
+//            if (newValue.trimmingCharacters(in: .whitespaces).count != 0) {
+//                print("[Notf]... ... ... => ")
+//                NotificationCenter.default.post(name: Notification.Name(rawValue: "ChatInputBarTextShouldChangeNotification"), object: self.textView.text)
+    //            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChatInputBarTextShouldChangeNotification", object: self.textView.text))
+//            }
         }
     }
+    
 
     public var inputSelectedRange: NSRange {
         get {
@@ -177,6 +184,10 @@ open class ChatInputBar: ReusableXibView {
             self.textView.placeholderText = newValue
         }
     }
+    
+//    public func updateInputBarText(text: String) {
+//        self.presenter?.onUpdateInputText(text: text)
+//    }
 
     fileprivate func updateSendButton() {
         self.sendButton.isEnabled = self.shouldEnableSendButton(self)
@@ -274,12 +285,14 @@ extension ChatInputBar: UITextViewDelegate {
         self.delegate?.inputBarDidChangeText(self)
     }
 
+    // 只要有文字輸入, 就會呼叫這個來更新輸入框顯示的文字
     public func textView(_ textView: UITextView, shouldChangeTextIn nsRange: NSRange, replacementText text: String) -> Bool {
         let range = self.textView.text.bma_rangeFromNSRange(nsRange)
         if let maxCharactersCount = self.maxCharactersCount {
             let currentCount = textView.text.count
             let rangeLength = textView.text[range].count
             let nextCount = currentCount - rangeLength + text.count
+            
             return UInt(nextCount) <= maxCharactersCount
         }
         return true
